@@ -27,3 +27,7 @@ await fs.rm("target/", { recursive: true, force: true })
 for await (const page of pages()) {
 	await page.write()
 }
+
+import { CACHE } from "./typst.js"
+
+await CACHE.insert("x^2 + 1")
