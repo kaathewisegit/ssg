@@ -6,11 +6,10 @@
 	"author": "Andrej Kolčin",
 	"type": "module",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "cd examples/basic; vite",
-		"build": "cd examples/basic; vite build"
+		"start": "cd examples/basic/; node ../../src/index.js"
 	},
-	"devDependencies": {
+	"dependencies": {
+		"@djot/djot": "^0.3.2",
 		"vite": "^7.0.2"
 	}
 }
