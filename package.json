@@ -6,7 +6,10 @@
 	"author": "Andrej Kolčin",
 	"type": "module",
 	"scripts": {
-		"start": "cd examples/basic/; node ../../src/index.js"
+		"lint": "biome lint",
+		"format": "biome format",
+		"check": "biome check",
+		"smoke": "cd examples/basic/; node ../../src/index.js"
 	},
 	"dependencies": {
 		"@djot/djot": "^0.3.2",
