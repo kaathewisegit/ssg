@@ -7,7 +7,39 @@ export function ssgVitePlugin() {
 		enforce: "pre",
 
 		resolveId(source, importer) {
-			return null
+			console.log("resolveId", source)
+			const id = stripExtension(
+				path.relative("pages/", source),
+			)
+			console.log(id)
+			return { id: id }
+		},
+
+		// transform(html, obj) {
+		// 	console.log("transform", html, obj)
+		// },
+
+		// load(id) {
+		// 	console.log("load", id)
+		// 	return "hello there"
+		// },
+
+		buildStart() {},
+		generateBundle() {
+			this.emitFile({
+				type: "asset",
+				fileName: "index.html",
+				source: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+ </head>
+<body>
+</body>
+</html>`,
+			})
 		},
 	}
 }
@@ -22,8 +54,13 @@ process.emitWarning = (warning, type, code, ctor) => {
 
 function stripExtension(input) {
 	const parsed = path.parse(input)
-	parsed.ext = null
-	parsed.base = null
+	if (parsed.name === "index") {
+		parsed.ext = "html"
+		parsed.base = null
+	} else {
+		parsed.ext = null
+		parsed.base = null
+	}
 	return path.format(parsed)
 }
 
@@ -32,7 +69,9 @@ export function entrypoints(base = "pages/") {
 	const files = fs.globSync(pattern)
 
 	const entries = files.reduce((acc, djot_path) => {
-		acc[stripExtension(djot_path)] = djot_path
+		let html_path = stripExtension(djot_path)
+		html_path = path.relative(base, html_path)
+		acc[html_path] = djot_path
 		return acc
 	}, {})
 
