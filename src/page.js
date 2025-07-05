@@ -43,4 +43,9 @@ export class Page {
 				return raw
 		}
 	}
+
+	async write() {
+		await fs.mkdir(path.dirname(this.dst), { recursive: true })
+		await fs.writeFile(this.dst, await this.rendered())
+	}
 }

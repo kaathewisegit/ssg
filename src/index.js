@@ -11,16 +11,16 @@ process.emitWarning = (warning, type, code, ctor) => {
 	originalEmitWarning(warning, type, code, ctor)
 }
 
-export async function pages(base = "pages/") {
+export async function* pages(base = "pages/") {
 	const pattern = path.join(base, "**/*.dj")
 	const files = fs.glob(pattern)
 
-	return Array.fromAsync(files, djot_path => new Page(djot_path))
+	for await (const djot_path of files) {
+		yield new Page(djot_path)
+	}
 }
 
-for (const page of await pages()) {
-	let djot = await page.rendered()
-	djot = `<!DOCTYPE html>\n${djot}`
-	await fs.mkdir(path.dirname(page.dst), { recursive: true })
-	await fs.writeFile(page.dst, djot)
+await fs.rm("target/", { recursive: true, force: true })
+for await (const page of pages()) {
+	await page.write()
 }
