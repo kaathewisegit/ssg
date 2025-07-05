@@ -1,0 +1,21 @@
+{
+    "files": {
+        "include": ["src/**/*.js"]
+    },
+    "javascript": {
+        "formatter": {
+            "enabled": true,
+            "indentWidth": 8,
+            "lineWidth": 80,
+            "semicolons": "asNeeded",
+            "arrowParentheses": "asNeeded"
+        }
+    },
+    "json": {
+        "formatter": {
+            "enabled": true,
+            "indentWidth": 4,
+            "indentStyle": "space"
+        }
+    }
+}

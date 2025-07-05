@@ -1,0 +1,11 @@
+{
+	"name": "ssg",
+	"description": "",
+	"version": "0.1.0-alpha.0",
+	"license": "MPL",
+	"author": "Andrej Kolčin",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	}
+}
