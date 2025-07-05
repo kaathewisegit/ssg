@@ -3,17 +3,14 @@ import { createHash } from "node:crypto"
 import { promises as fs } from "node:fs"
 import path from "node:path"
 
+import { file_exists } from "./util.js"
+
 const DIR = "target/asset/generated"
 
 export const CACHE = {
 	async contains(formula) {
-		const file = path.join(DIR, hash(formula))
-		try {
-			await fs.access(file)
-			return true
-		} catch (error) {
-			return false
-		}
+		const file_path = path.join(DIR, hash(formula))
+		return file_exists(file_path)
 	},
 }
 
