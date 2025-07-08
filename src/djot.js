@@ -56,4 +56,14 @@ const typst_filter = {
 			text: `<img src="/${path}" class=math-inline>`,
 		}
 	},
+
+	display_math: async el => {
+		const formula = el.text
+		const path = await CACHE.insert(formula)
+		return {
+			tag: "raw_inline",
+			format: "html",
+			text: `<p class=math-container><img src="/${path}" class=math-display></p>`,
+		}
+	},
 }
