@@ -21,9 +21,9 @@ export async function* pages(base = "pages/") {
 }
 
 import config from "./config.js"
-config.init()
+await config.init()
 
-await fs.rm("target/", { recursive: true, force: true })
+await fs.rm(config.target, { recursive: true, force: true })
 for await (const page of pages()) {
 	await page.write()
 }
