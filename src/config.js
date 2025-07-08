@@ -26,11 +26,15 @@ export default {
 		this.pages = path.resolve(this.pages)
 	},
 
+	get tree() {
+		return path.join(this.target, "tree/")
+	},
+
 	get assets() {
-		return path.join(this.target, "assets/")
+		return path.join(this.tree, "assets/")
 	},
 
 	get gen_assets() {
-		return path.join(this.target, "assets/generated/")
+		return path.join(this.tree, "assets/generated/")
 	},
 }

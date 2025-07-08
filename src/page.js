@@ -27,7 +27,7 @@ export class Page {
 				`The file must be HTML or Djot, got ${src}`,
 			)
 		}
-		this.dst = path.join(config.target, path.format(parsed))
+		this.dst = path.join(config.tree, path.format(parsed))
 	}
 
 	async raw() {

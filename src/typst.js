@@ -24,7 +24,7 @@ export const CACHE = {
 		if (!(await this.contains(formula))) {
 			render(formula)
 		}
-		return path.relative(config.target, svg_file_path(formula))
+		return path.relative(config.tree, svg_file_path(formula))
 	},
 }
 
