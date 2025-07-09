@@ -5,8 +5,7 @@ import process from "node:process"
 import { find_dir_with_file } from "./util.js"
 
 export default {
-	target: "",
-	path: "",
+	root: undefined,
 
 	async init() {
 		const [root, config_path] = await find_dir_with_file(
@@ -19,11 +18,15 @@ export default {
 		const module = await import(config_path)
 		this.options = module.default
 
-		this.target = this.options.target || path.join(root, "target/")
-		this.pages = this.options.pages || path.join(root, "pages/")
+		this.root = path.resolve(root)
+	},
 
-		this.target = path.resolve(this.target)
-		this.pages = path.resolve(this.pages)
+	get pages() {
+		return path.join(this.root, "pages/")
+	},
+
+	get target() {
+		return path.join(this.root, "target/")
 	},
 
 	get tree() {

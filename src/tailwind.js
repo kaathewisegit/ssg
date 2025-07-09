@@ -18,9 +18,11 @@ async function update() {
 }
 
 await config.init()
+await update()
 
 process.on("message", async message => {
 	if (message === "update") {
+		console.log("TailwindCSS update")
 		await update()
 	}
 })
