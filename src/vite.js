@@ -1,5 +1,4 @@
 import path from "node:path"
-import { fileURLToPath } from "node:url"
 import { build } from "vite"
 
 import config from "./config.js"
@@ -32,4 +31,5 @@ function vite_config(files) {
 	}
 }
 
-run()
+await config.init()
+await run()

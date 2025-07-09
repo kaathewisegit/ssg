@@ -35,6 +35,6 @@ export default {
 	},
 
 	get gen_assets() {
-		return path.join(this.tree, "assets/generated/")
+		return path.join(this.assets, "generated/")
 	},
 }

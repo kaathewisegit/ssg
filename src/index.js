@@ -30,6 +30,7 @@ for await (const page of pages()) {
 }
 
 const vite = fork("../../src/vite.js")
+const tailwind = fork("../../src/tailwind.js")
 
 process.stdin.setRawMode(true)
 process.stdin.resume()
