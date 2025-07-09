@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs"
 import path from "node:path"
+import url from "node:url"
 
 export async function file_exists(file_path) {
 	try {
@@ -25,4 +26,12 @@ export async function find_dir_with_file(start_dir, name) {
 		}
 		current_dir = parent_dir
 	}
+}
+
+export function filename() {
+	return url.fileURLToPath(import.meta.url)
+}
+
+export function dirname() {
+	return path.dirname(filename())
 }

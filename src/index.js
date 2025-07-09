@@ -4,6 +4,7 @@ import path from "node:path"
 import chokidar from "chokidar"
 
 import { Page } from "./page.js"
+import Proc from "./proc.js"
 
 const originalEmitWarning = process.emitWarning
 process.emitWarning = (warning, type, code, ctor) => {
@@ -34,20 +35,8 @@ await config.init()
 await fs.rm(config.target, { recursive: true, force: true })
 await update_pages()
 
-const vite = fork("../../src/vite.js")
-const tailwind = fork("../../src/tailwind.js")
-
-process.stdin.setRawMode(true)
-process.stdin.resume()
-process.stdin.setEncoding("utf8")
-process.stdin.on("data", key => {
-	if (key === "q" || key === "Q") {
-		console.log("> 'Q' pressed. Exiting.")
-		vite.kill()
-		tailwind.kill()
-		process.exit()
-	}
-})
+const vite = Proc.launch("vite.js")
+const tailwind = Proc.launch("tailwind.js")
 
 const root_watcher = chokidar.watch(config.root, {
 	persistent: true,
