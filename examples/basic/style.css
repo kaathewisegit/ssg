@@ -7,3 +7,73 @@ h1 { @apply text-3xl font-extrabold mb-3; }
 h2 { @apply text-2xl mt-4; }
 h3 { @apply text-xl mt-3; }
 h4 { @apply text-lg mt-2.5; }
+
+h2, h3, h4 { @apply font-bold; }
+
+a { @apply underline hover:decoration-1; }
+
+p { @apply my-2; }
+
+blockquote {
+	@apply bg-gray-100;
+	@apply border-s-4 border-gray-400 rounded-r-lg;
+	@apply ps-2 pe-4 py-0.5 my-2;
+}
+
+.deleted {
+	@apply line-through;
+	text-decoration-line: line-through;
+}
+
+.highlighted, .inserted {
+	@apply bg-gray-200 rounded p-0.5;
+}
+
+pre {
+	@apply bg-gray-100 rounded-lg;
+	@apply p-1;
+	/* long code snippets */
+	@apply overflow-x-scroll;
+}
+
+code {
+	@apply bg-gray-100 rounded-lg;
+}
+
+hr {
+	@apply border-gray-400;
+}
+
+ul {
+	@apply pl-5 list-disc;
+}
+
+dt {
+	@apply font-bold italic;
+}
+
+dd {
+	@apply pl-4;
+}
+
+/* Spacing between consequtive footnotes */
+.footnote-ref + .footnote-ref {
+	@apply ms-0.5;
+}
+
+#footnotes {
+	@apply mt-8;
+
+	li {
+		@apply list-decimal;
+		@apply ms-6;
+	}
+}
+
+.math-inline {
+	@apply inline align-bottom
+}
+
+.math-display {
+	@apply flex justify-center
+}

@@ -28,19 +28,24 @@ export async function render(doc) {
 
 async function apply_filter(element, filter) {
 	if (element.children) {
-		for (const child of element.children) {
-			await apply_filter(child, filter)
+		for (let i = 0; i < element.children.length; i += 1) {
+			const result = await apply_filter(
+				element.children[i],
+				filter,
+			)
+			if (result) {
+				element.children[i] = result
+			}
 		}
 	}
 
 	if (filter instanceof Function) {
-		apply_func(element, filter)
+		return await filter(element)
 	}
 
 	for (const [tag, func] of Object.entries(filter)) {
 		if (tag === element.tag) {
-			apply_func(element, func)
-			return
+			return await func(element)
 		}
 	}
 }
