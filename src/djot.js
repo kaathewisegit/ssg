@@ -1,6 +1,8 @@
 import { promises as fs } from "node:fs"
+import path from "node:path"
 import djot from "@djot/djot"
 
+import config from "./config.js"
 import { CACHE } from "./typst.js"
 
 export function parse(src) {
@@ -19,6 +21,7 @@ export function metadata(doc) {
 
 export async function render(doc) {
 	await apply_filter(doc, typst_filter)
+	await apply_filter(doc, classes_filter)
 
 	return `<!doctype html>\n ${djot.renderHTML(doc)}`
 }
@@ -30,19 +33,24 @@ async function apply_filter(element, filter) {
 		}
 	}
 
+	if (filter instanceof Function) {
+		apply_func(element, filter)
+	}
+
 	for (const [tag, func] of Object.entries(filter)) {
-		if (tag !== element.tag) {
-			continue
+		if (tag === element.tag) {
+			apply_func(element, func)
+			return
 		}
+	}
+}
 
-		const output = await func(element)
-		if (output) {
-			for (const [key, value] of Object.entries(output)) {
-				element[key] = value
-			}
+async function apply_func(element, func) {
+	const output = await func(element)
+	if (output) {
+		for (const [key, value] of Object.entries(output)) {
+			element[key] = value
 		}
-
-		return
 	}
 }
 
@@ -66,4 +74,13 @@ const typst_filter = {
 			text: `<p class=math-container><img src="/${path}" class=math-display></p>`,
 		}
 	},
+}
+
+async function classes_filter(element) {
+	if (element.attributes?.class) {
+		await fs.appendFile(
+			path.join(config.target, "classes"),
+			`${element.attributes.class}\n`,
+		)
+	}
 }

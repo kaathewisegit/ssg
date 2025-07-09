@@ -22,7 +22,7 @@ await run()
 
 process.on("message", async message => {
 	if (message === "update") {
-		await update()
+		await run()
 		console.log("TailwindCSS updated")
 	}
 })
