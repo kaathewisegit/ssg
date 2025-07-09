@@ -1,3 +1,4 @@
+import { fork } from "node:child_process"
 import { promises as fs } from "node:fs"
 import path from "node:path"
 
@@ -28,6 +29,14 @@ for await (const page of pages()) {
 	await page.write()
 }
 
-import { CACHE } from "./typst.js"
+const vite = fork("../../src/vite.js")
 
-await CACHE.insert("x^2 + 1")
+process.stdin.setRawMode(true)
+process.stdin.resume()
+process.stdin.setEncoding("utf8")
+process.stdin.on("data", key => {
+	if (key === "q" || key === "Q") {
+		console.log("> 'Q' pressed. Exiting.")
+		process.exit()
+	}
+})
