@@ -16,16 +16,15 @@ function vite_config(files) {
 
 	return {
 		build: {
+			minify: false,
 			lib: {
 				entry: entries,
 				// only build ES
 				fileName: (format, entry) => `${entry}.js`,
 				formats: ["es"],
 			},
-			minify: false,
 			rollupOptions: {},
 			outDir: path.join(config.gen_assets, "vite/"),
-
 			watch: "./js/",
 		},
 	}

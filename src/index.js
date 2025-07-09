@@ -54,7 +54,7 @@ const root_watcher = chokidar.watch(config.root, {
 	ignoreInitial: true,
 })
 
-root_watcher.on("change", file_path => {
+root_watcher.on("all", (event, file_path) => {
 	const rel_path = path.relative(config.root, file_path)
 	if (rel_path === "style.css" || rel_path.startsWith("pages/")) {
 		tailwind.send("update")

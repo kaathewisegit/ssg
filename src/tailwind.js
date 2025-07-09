@@ -6,7 +6,7 @@ import postcss from "postcss"
 
 import config from "./config.js"
 
-async function update() {
+async function run() {
 	const css = await fs.readFile("style.css", "utf8")
 	const result = postcss([tailwindcss]).process(css, {
 		from: "style.css",
@@ -18,11 +18,11 @@ async function update() {
 }
 
 await config.init()
-await update()
+await run()
 
 process.on("message", async message => {
 	if (message === "update") {
-		console.log("TailwindCSS update")
 		await update()
+		console.log("TailwindCSS updated")
 	}
 })
