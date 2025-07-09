@@ -1,0 +1,42 @@
+import { promises as fs } from "node:fs"
+import path from "node:path"
+import chokidar from "chokidar"
+
+import config from "./config.js"
+import { Page } from "./page.js"
+import { silence_warning } from "./util.js"
+
+async function update(file) {
+	const page = new Page(file)
+	await page.write()
+}
+
+async function* pages() {
+	const pattern = path.join(config.pages, "**/*.dj")
+	const files = fs.glob(pattern)
+
+	for await (const djot_path of files) {
+		yield new Page(djot_path)
+	}
+}
+
+async function update_all() {
+	for await (const page of pages()) {
+		await page.write()
+	}
+}
+
+silence_warning("ExperimentalWarning")
+await config.init()
+await fs.rm(config.target, { recursive: true, force: true })
+await update_all()
+
+const watcher = chokidar.watch("pages/", {
+	persistent: true,
+	ignoreInitial: true,
+})
+
+watcher.on("all", async (event, file) => {
+	await update(file)
+	console.log(`${file} updated`)
+})

@@ -35,3 +35,14 @@ export function filename() {
 export function dirname() {
 	return path.dirname(filename())
 }
+
+export function silence_warning(name) {
+	const originalEmitWarning = process.emitWarning
+
+	process.emitWarning = (warning, type, code, ctor) => {
+		if (type === name) {
+			return
+		}
+		originalEmitWarning(warning, type, code, ctor)
+	}
+}

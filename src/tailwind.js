@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import tailwindcss from "@tailwindcss/postcss"
+import chokidar from "chokidar"
 import postcss from "postcss"
 
 import config from "./config.js"
@@ -20,9 +21,12 @@ async function run() {
 await config.init()
 await run()
 
-process.on("message", async message => {
-	if (message === "update") {
-		await run()
-		console.log("TailwindCSS updated")
-	}
+const watcher = chokidar.watch(["style.css", "pages/", "target/classes"], {
+	persistent: true,
+	ignoreInitial: true,
+})
+
+watcher.on("all", async (event, file_path) => {
+	await run()
+	console.log("TailwindCSS updated")
 })
