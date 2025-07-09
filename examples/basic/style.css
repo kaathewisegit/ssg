@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "./pages/**/*.dj";
 
 h1 { @apply text-3xl font-extrabold mb-3; }
 h2 { @apply text-2xl mt-4; }
