@@ -6,8 +6,7 @@
 	"author": "Andrej Kolčin",
 	"type": "module",
 	"scripts": {
-		"lint": "biome lint",
-		"format": "biome format",
+		"lint": "biome check --fix --unsafe",
 		"check": "biome check",
 		"smoke": "cd examples/basic/; node ../../src/index.js"
 	},
