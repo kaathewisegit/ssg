@@ -43,4 +43,10 @@ export default {
 	get port() {
 		return this.options.port ?? 3000
 	},
+
+	get viteEntrypoints() {
+		const names = this.options.vite.entrypoints ?? []
+
+		return names.map(file => path.join("js/", file))
+	},
 }

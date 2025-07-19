@@ -4,7 +4,7 @@ import { build } from "vite"
 import config from "./config.js"
 
 async function run() {
-	await build(vite_config(["js/main.js", "js/other.js"]))
+	await build(vite_config(config.viteEntrypoints))
 }
 
 function vite_config(files) {
