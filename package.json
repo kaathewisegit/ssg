@@ -11,6 +11,7 @@
 		"smoke": "cd examples/basic/; node ../../src/index.js"
 	},
 	"dependencies": {
+		"@biomejs/biome": "^2.1.2",
 		"@djot/djot": "^0.3.2",
 		"@tailwindcss/postcss": "^4.1.11",
 		"chokidar": "^4.0.3",
