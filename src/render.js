@@ -37,6 +37,8 @@ const watcher = chokidar.watch("pages/", {
 })
 
 watcher.on("all", async (_event, file) => {
-	await update(file)
-	console.log(`${file} updated`)
+	if (path.extname(file) === ".dj") {
+		await update(file)
+		console.log(`${file} updated`)
+	}
 })
