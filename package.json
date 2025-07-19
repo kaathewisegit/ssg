@@ -2,7 +2,7 @@
 	"name": "@kaathewise/ssg",
 	"description": "Djot, Typst & Vite components static site generator",
 	"version": "0.1.0-alpha.2",
-	"license": "MPL",
+	"license": "MPL-2.0",
 	"author": "Andrej Kolčin",
 	"type": "module",
 	"scripts": {
