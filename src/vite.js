@@ -4,7 +4,10 @@ import { build } from "vite"
 import config from "./config.js"
 
 async function run() {
-	await build(vite_config(config.viteEntrypoints))
+	if (config.viteEntrypoints.length > 0) {
+		console.log(config.viteEntrypoints)
+		await build(vite_config(config.viteEntrypoints))
+	}
 }
 
 function vite_config(files) {

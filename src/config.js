@@ -45,7 +45,7 @@ export default {
 	},
 
 	get viteEntrypoints() {
-		const names = this.options.vite.entrypoints ?? []
+		const names = this.options.vite?.entrypoints ?? []
 
 		return names.map(file => path.join("js/", file))
 	},
