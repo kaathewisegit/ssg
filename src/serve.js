@@ -5,14 +5,20 @@ import config from "./config.js"
 
 await config.init()
 
+process.chdir(config.tree)
+
 const server = http.createServer(async (request, result) => {
-	const filePath = path.join(
-		config.tree,
-		request.url === "/" ? "index.html" : request.url,
-	)
+	let filePath = path.join(config.tree, request.url)
+
+	const stat = await fs.stat(filePath)
+
+	if (stat.isDirectory()) {
+		filePath = path.join(filePath, "index.html")
+	}
 
 	const extname = path.extname(filePath)
 	const mimeTypes = {
+		"": "text/html",
 		".html": "text/html",
 		".js": "text/javascript",
 		".css": "text/css",
