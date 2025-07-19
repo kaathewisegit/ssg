@@ -39,4 +39,8 @@ export default {
 	get gen_assets() {
 		return path.join(this.assets, "generated/")
 	},
+
+	get port() {
+		return this.options.port ?? 3000
+	},
 }

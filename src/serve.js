@@ -3,8 +3,6 @@ import * as http from "node:http"
 import * as path from "node:path"
 import config from "./config.js"
 
-const PORT = 3000
-
 await config.init()
 
 const server = http.createServer(async (request, result) => {
@@ -39,6 +37,6 @@ const server = http.createServer(async (request, result) => {
 	}
 })
 
-server.listen(PORT, () => {
-	console.log(`Server running at http://localhost:${PORT}/`)
+server.listen(config.port, () => {
+	console.log(`Server running at http://localhost:${config.port}/`)
 })
