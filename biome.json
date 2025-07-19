@@ -1,21 +1,26 @@
 {
-    "files": {
-        "includes": ["src/**/*.js", "examples/*/js/*.js"]
-    },
-    "javascript": {
-        "formatter": {
-            "enabled": true,
-            "indentWidth": 8,
-            "lineWidth": 80,
-            "semicolons": "asNeeded",
-            "arrowParentheses": "asNeeded"
-        }
-    },
-    "json": {
-        "formatter": {
-            "enabled": true,
-            "indentWidth": 4,
-            "indentStyle": "space"
-        }
-    }
+	"files": {
+		"includes": [
+			"package.json",
+			"biome.json",
+			"src/**/*.js",
+			"examples/*/js/*.js"
+		]
+	},
+	"javascript": {
+		"formatter": {
+			"enabled": true,
+			"indentWidth": 8,
+			"lineWidth": 80,
+			"semicolons": "asNeeded",
+			"arrowParentheses": "asNeeded"
+		}
+	},
+	"json": {
+		"formatter": {
+			"enabled": true,
+			"indentWidth": 8,
+			"indentStyle": "tab"
+		}
+	}
 }
