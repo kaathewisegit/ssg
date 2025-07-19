@@ -20,7 +20,7 @@ function vite_config(files) {
 			lib: {
 				entry: entries,
 				// only build ES
-				fileName: (format, entry) => `${entry}.js`,
+				fileName: (_format, entry) => `${entry}.js`,
 				formats: ["es"],
 			},
 			rollupOptions: {},

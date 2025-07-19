@@ -36,7 +36,7 @@ const watcher = chokidar.watch("pages/", {
 	ignoreInitial: true,
 })
 
-watcher.on("all", async (event, file) => {
+watcher.on("all", async (_event, file) => {
 	await update(file)
 	console.log(`${file} updated`)
 })

@@ -21,7 +21,7 @@ const Proc = {
 		readline.emitKeypressEvents(process.stdin)
 		process.stdin.setRawMode(true)
 
-		process.stdin.on("keypress", (chunk, key) => {
+		process.stdin.on("keypress", (_chunk, key) => {
 			if (is_shutdown_key(key)) {
 				this.shutdown()
 			}

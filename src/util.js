@@ -6,7 +6,7 @@ export async function file_exists(file_path) {
 	try {
 		await fs.access(file_path)
 		return true
-	} catch (error) {
+	} catch (_error) {
 		return false
 	}
 }

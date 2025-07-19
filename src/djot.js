@@ -50,7 +50,7 @@ async function apply_filter(element, filter) {
 	}
 }
 
-async function apply_func(element, func) {
+async function _apply_func(element, func) {
 	const output = await func(element)
 	if (output) {
 		for (const [key, value] of Object.entries(output)) {

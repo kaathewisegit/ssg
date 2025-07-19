@@ -1,6 +1,5 @@
 import { promises as fs } from "node:fs"
 import path from "node:path"
-import process from "node:process"
 import tailwindcss from "@tailwindcss/postcss"
 import chokidar from "chokidar"
 import postcss from "postcss"
@@ -26,7 +25,7 @@ const watcher = chokidar.watch(["style.css", "pages/", "target/classes"], {
 	ignoreInitial: true,
 })
 
-watcher.on("all", async (event, file_path) => {
+watcher.on("all", async (_event, _file_path) => {
 	await run()
 	console.log("TailwindCSS updated")
 })
