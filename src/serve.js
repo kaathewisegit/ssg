@@ -10,10 +10,15 @@ process.chdir(config.tree)
 const server = http.createServer(async (request, result) => {
 	let filePath = path.join(config.tree, request.url)
 
-	const stat = await fs.stat(filePath)
-
-	if (stat.isDirectory()) {
-		filePath = path.join(filePath, "index.html")
+	try {
+		const stat = await fs.stat(filePath)
+		if (stat.isDirectory()) {
+			filePath = path.join(filePath, "index.html")
+		}
+	} catch (error) {
+		result.writeHead(500)
+		result.end(`Server Error: ${error.code}\n`)
+		return
 	}
 
 	const extname = path.extname(filePath)
@@ -33,14 +38,9 @@ const server = http.createServer(async (request, result) => {
 	}
 	const contentType = mimeTypes[extname] || "application/octet-stream"
 
-	try {
-		const content = await fs.readFile(filePath)
-		result.writeHead(200, { "Content-Type": contentType })
-		result.end(content, "utf-8")
-	} catch (error) {
-		result.writeHead(500)
-		result.end(`Server Error: ${error.code}\n`)
-	}
+	const content = await fs.readFile(filePath)
+	result.writeHead(200, { "Content-Type": contentType })
+	result.end(content, "utf-8")
 })
 
 server.listen(config.port, () => {
