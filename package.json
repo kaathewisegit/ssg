@@ -10,6 +10,7 @@
 		"check": "biome check",
 		"smoke": "cd examples/basic/; node ../../src/index.js"
 	},
+	"bin": "./src/index.js",
 	"dependencies": {
 		"@biomejs/biome": "^2.1.2",
 		"@djot/djot": "^0.3.2",

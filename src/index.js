@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import config from "./config.js"
 import Proc from "./proc.js"
 
