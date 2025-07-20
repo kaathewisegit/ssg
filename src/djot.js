@@ -11,6 +11,9 @@ export function parse(src) {
 
 export function metadata(doc) {
 	const block = doc.children[0]
+	if (!block) {
+		return
+	}
 
 	if (block.tag === "raw_block" && block.format === "metadata") {
 		return JSON.parse(block.text)
