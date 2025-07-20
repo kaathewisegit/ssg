@@ -2,15 +2,21 @@ import path from "node:path"
 import { build } from "vite"
 
 import config from "./config.js"
+import { is_proc } from "./util.js"
 
-async function run() {
+export async function run() {
 	if (config.viteEntrypoints.length > 0) {
-		console.log(config.viteEntrypoints)
-		await build(vite_config(config.viteEntrypoints))
+		await build(vite_config(config.viteEntrypoints, false))
 	}
 }
 
-function vite_config(files) {
+export async function watch() {
+	if (config.viteEntrypoints.length > 0) {
+		await build(vite_config(config.viteEntrypoints, true))
+	}
+}
+
+function vite_config(files, watch) {
 	const entries = files.reduce((acc, file) => {
 		const name = path.parse(file).name
 		acc[name] = file
@@ -28,10 +34,13 @@ function vite_config(files) {
 			},
 			rollupOptions: {},
 			outDir: path.join(config.gen_assets, "vite/"),
-			watch: "./js/",
+			...(watch && { watch: "./js/" }),
 		},
 	}
 }
 
-await config.init()
-await run()
+if (is_proc()) {
+	await config.init()
+
+	await run()
+}

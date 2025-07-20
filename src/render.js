@@ -4,7 +4,7 @@ import chokidar from "chokidar"
 
 import config from "./config.js"
 import { Page } from "./page.js"
-import { silence_warning } from "./util.js"
+import { is_proc, silence_warning } from "./util.js"
 
 async function update(file) {
 	const page = new Page(file)
@@ -20,25 +20,28 @@ async function* pages() {
 	}
 }
 
-async function update_all() {
+export async function update_all() {
 	for await (const page of pages()) {
 		await page.write()
 	}
 }
 
 silence_warning("ExperimentalWarning")
-await config.init()
-await fs.rm(config.target, { recursive: true, force: true })
-await update_all()
 
-const watcher = chokidar.watch("pages/", {
-	persistent: true,
-	ignoreInitial: true,
-})
+if (is_proc()) {
+	await config.init()
+	await fs.rm(config.target, { recursive: true, force: true })
+	await update_all()
 
-watcher.on("all", async (_event, file) => {
-	if (path.extname(file) === ".dj") {
-		await update(file)
-		console.log(`${file} updated`)
-	}
-})
+	const watcher = chokidar.watch("pages/", {
+		persistent: true,
+		ignoreInitial: true,
+	})
+
+	watcher.on("all", async (_event, file) => {
+		if (path.extname(file) === ".dj") {
+			await update(file)
+			console.log(`${file} updated`)
+		}
+	})
+}

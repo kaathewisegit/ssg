@@ -46,3 +46,7 @@ export function silence_warning(name) {
 		originalEmitWarning(warning, type, code, ctor)
 	}
 }
+
+export function is_proc() {
+	return typeof process.send === "function"
+}

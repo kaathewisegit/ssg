@@ -51,6 +51,4 @@ const Proc = {
 	},
 }
 
-Proc.init()
-
 export default Proc
