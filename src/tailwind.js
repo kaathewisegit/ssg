@@ -15,6 +15,7 @@ export async function run() {
 	})
 	await result
 
+	fs.mkdir(config.gen_assets, { recursive: true })
 	fs.writeFile(path.join(config.gen_assets, "style.css"), result.css)
 }
 
