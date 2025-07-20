@@ -7,6 +7,7 @@ await config.init()
 
 process.chdir(config.tree)
 
+// TODO: refactor out into a function with a common 500 catcher
 const server = http.createServer(async (request, result) => {
 	let filePath = path.join(config.tree, request.url)
 
@@ -38,9 +39,15 @@ const server = http.createServer(async (request, result) => {
 	}
 	const contentType = mimeTypes[extname] || "application/octet-stream"
 
-	const content = await fs.readFile(filePath)
-	result.writeHead(200, { "Content-Type": contentType })
-	result.end(content, "utf-8")
+	try {
+		const content = await fs.readFile(filePath)
+		result.writeHead(200, { "Content-Type": contentType })
+		result.end(content, "utf-8")
+	} catch (error) {
+		result.writeHead(500)
+		result.end(`Server Error: ${error.code}\n`)
+		return
+	}
 })
 
 server.listen(config.port, () => {
