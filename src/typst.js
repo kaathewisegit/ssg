@@ -32,18 +32,11 @@ function hash(text) {
 	return createHash("sha256").update(text).digest("hex")
 }
 
-export async function render(formula) {
+export async function render(typst) {
 	// TODO: this should probably go elsewhere
 	await fs.mkdir(dir(), { recursive: true })
 
-	const typst = `\
-#set page(width: auto, height: auto, margin: (x: 0pt, y: 5pt))
-#set text(size: 16pt)
-
-$${formula}$
-`
-
-	const dst = svg_file_path(formula)
+	const dst = svg_file_path(typst)
 	const child = spawn("typst", ["compile", "--format", "svg", "-", dst], {
 		stdio: ["pipe", null, null],
 	})

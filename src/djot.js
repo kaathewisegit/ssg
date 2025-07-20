@@ -23,10 +23,11 @@ export function metadata(doc) {
 }
 
 export async function render(doc) {
-	await apply_filter(doc, typst_filter)
+	await apply_filter(doc, formula_filter)
 	await apply_filter(doc, classes_filter)
+	await apply_filter(doc, typst_filter)
 
-	return `<!doctype html>\n ${djot.renderHTML(doc)}`
+	return djot.renderHTML(doc)
 }
 
 async function apply_filter(element, filter) {
@@ -62,24 +63,43 @@ async function _apply_func(element, func) {
 	}
 }
 
-const typst_filter = {
+const formula_filter = {
 	inline_math: async el => {
-		const formula = el.text
-		const path = await CACHE.insert(formula)
-		return {
-			tag: "raw_inline",
-			format: "html",
-			text: `<img src="/${path}" class=math-inline>`,
-		}
+		const path = await CACHE.insert(typst_formula(el.text))
+		return math_container(path, true)
 	},
 
 	display_math: async el => {
-		const formula = el.text
-		const path = await CACHE.insert(formula)
-		return {
-			tag: "raw_inline",
-			format: "html",
-			text: `<p class=math-container><img src="/${path}" class=math-display></p>`,
+		const path = await CACHE.insert(typst_formula(el.text))
+		return math_container(path, false)
+	},
+}
+
+function typst_formula(formula) {
+	return `\
+#set page(width: auto, height: auto, margin: (x: 0pt, y: 5pt))
+#set text(size: 16pt)
+
+$${formula}$
+`
+}
+
+async function math_container(path, inline) {
+	const raw_html = inline
+		? `<img src="/${path}" class=math-inline>`
+		: `<p class=math-container><img src="/${path}" class=math-display></p>`
+	return {
+		tag: "raw_inline",
+		format: "html",
+		text: raw_html,
+	}
+}
+
+const typst_filter = {
+	raw_block: async el => {
+		if (el.format === "typst") {
+			const path = await CACHE.insert(el.text)
+			return math_container(path, false)
 		}
 	},
 }
