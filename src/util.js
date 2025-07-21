@@ -2,11 +2,11 @@ import { promises as fs } from "node:fs"
 import path from "node:path"
 import url from "node:url"
 
-export async function file_exists(file_path) {
+export async function file_exists(path) {
 	try {
-		await fs.access(file_path)
+		await fs.access(path)
 		return true
-	} catch (_error) {
+	} catch {
 		return false
 	}
 }

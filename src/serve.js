@@ -1,55 +1,65 @@
 import { promises as fs } from "node:fs"
 import * as http from "node:http"
 import * as path from "node:path"
+
 import config from "./config.js"
+import { file_exists } from "./util.js"
 
-await config.init()
+const MIME_TYPES = {
+	"": "text/html",
+	".html": "text/html",
+	".js": "text/javascript",
+	".css": "text/css",
+	".json": "application/json",
+	".png": "image/png",
+	".jpg": "image/jpg",
+	".gif": "image/gif",
+	".svg": "image/svg+xml",
+	".wav": "audio/wav",
+	".mp4": "video/mp4",
+	".wasm": "application/wasm",
+}
 
-process.chdir(config.tree)
+function mimeType(file_path) {
+	return MIME_TYPES[path.extname(file_path)] || "application/octet-stream"
+}
 
-// TODO: refactor out into a function with a common 500 catcher
-const server = http.createServer(async (request, result) => {
+async function handle(request, result) {
 	let filePath = path.join(config.tree, request.url)
 
-	try {
-		const stat = await fs.stat(filePath)
-		if (stat.isDirectory()) {
-			filePath = path.join(filePath, "index.html")
-		}
-	} catch (error) {
-		result.writeHead(500)
-		result.end(`Server Error: ${error.code}\n`)
+	if (!(await file_exists(filePath))) {
+		result.writeHead(404)
+		result.end("File not found")
 		return
 	}
 
-	const extname = path.extname(filePath)
-	const mimeTypes = {
-		"": "text/html",
-		".html": "text/html",
-		".js": "text/javascript",
-		".css": "text/css",
-		".json": "application/json",
-		".png": "image/png",
-		".jpg": "image/jpg",
-		".gif": "image/gif",
-		".svg": "image/svg+xml",
-		".wav": "audio/wav",
-		".mp4": "video/mp4",
-		".wasm": "application/wasm",
+	const stat = await fs.stat(filePath)
+	if (stat.isDirectory()) {
+		filePath = path.join(filePath, "index.html")
 	}
-	const contentType = mimeTypes[extname] || "application/octet-stream"
 
+	if (!(await file_exists(filePath))) {
+		result.writeHead(404)
+		result.end(`index.html not found in directory ${request.url}`)
+		return
+	}
+
+	const content = await fs.readFile(filePath)
+	result.writeHead(200, { "Content-Type": mimeType(filePath) })
+	result.end(content, "utf-8")
+}
+
+const server = http.createServer(async (request, result) => {
 	try {
-		const content = await fs.readFile(filePath)
-		result.writeHead(200, { "Content-Type": contentType })
-		result.end(content, "utf-8")
+		handle(request, result)
 	} catch (error) {
 		result.writeHead(500)
-		result.end(`Server Error: ${error.code}\n`)
-		return
+		result.end(`Server error: ${error.code}`)
 	}
 })
 
+await config.init()
+process.chdir(config.tree)
 server.listen(config.port, () => {
 	console.log(`Server running at http://localhost:${config.port}/`)
 })
