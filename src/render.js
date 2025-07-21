@@ -4,7 +4,7 @@ import chokidar from "chokidar"
 
 import config from "./config.js"
 import { Page } from "./page.js"
-import { is_proc, silence_warning } from "./util.js"
+import { isProc, silenceWarning } from "./util.js"
 
 async function update(file) {
 	const page = new Page(file)
@@ -15,23 +15,23 @@ async function* pages() {
 	const pattern = path.join(config.pages, "**/*.dj")
 	const files = fs.glob(pattern)
 
-	for await (const djot_path of files) {
-		yield new Page(djot_path)
+	for await (const djotPath of files) {
+		yield new Page(djotPath)
 	}
 }
 
-export async function update_all() {
+export async function updateAll() {
 	for await (const page of pages()) {
 		await page.write()
 	}
 }
 
-silence_warning("ExperimentalWarning")
+silenceWarning("ExperimentalWarning")
 
-if (is_proc()) {
+if (isProc()) {
 	await config.init()
 	await fs.rm(config.target, { recursive: true, force: true })
-	await update_all()
+	await updateAll()
 
 	const watcher = chokidar.watch("pages/", {
 		persistent: true,

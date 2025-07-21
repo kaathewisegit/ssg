@@ -6,7 +6,7 @@ import readline from "node:readline"
 
 import { dirname } from "./util.js"
 
-function is_shutdown_key(key) {
+function isShutdownKey(key) {
 	if (!key) {
 		return false
 	}
@@ -22,7 +22,7 @@ const Proc = {
 		process.stdin.setRawMode(true)
 
 		process.stdin.on("keypress", (_chunk, key) => {
-			if (is_shutdown_key(key)) {
+			if (isShutdownKey(key)) {
 				this.shutdown()
 			}
 		})

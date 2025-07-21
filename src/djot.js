@@ -23,17 +23,17 @@ export function metadata(doc) {
 }
 
 export async function render(doc) {
-	await apply_filter(doc, formula_filter)
-	await apply_filter(doc, classes_filter)
-	await apply_filter(doc, typst_filter)
+	await applyFilter(doc, formulaFilter)
+	await applyFilter(doc, classesFilter)
+	await applyFilter(doc, typstFilter)
 
 	return djot.renderHTML(doc)
 }
 
-async function apply_filter(element, filter) {
+async function applyFilter(element, filter) {
 	if (element.children) {
 		for (let i = 0; i < element.children.length; i += 1) {
-			const result = await apply_filter(
+			const result = await applyFilter(
 				element.children[i],
 				filter,
 			)
@@ -54,28 +54,19 @@ async function apply_filter(element, filter) {
 	}
 }
 
-async function _apply_func(element, func) {
-	const output = await func(element)
-	if (output) {
-		for (const [key, value] of Object.entries(output)) {
-			element[key] = value
-		}
-	}
-}
-
-const formula_filter = {
+const formulaFilter = {
 	inline_math: async el => {
-		const path = await CACHE.insert(typst_formula(el.text))
-		return math_container(path, true)
+		const path = await CACHE.insert(typstFormula(el.text))
+		return mathContainer(path, true)
 	},
 
 	display_math: async el => {
-		const path = await CACHE.insert(typst_formula(el.text))
-		return math_container(path, false)
+		const path = await CACHE.insert(typstFormula(el.text))
+		return mathContainer(path, false)
 	},
 }
 
-function typst_formula(formula) {
+function typstFormula(formula) {
 	return `\
 #set page(width: auto, height: auto, margin: (x: 0pt, y: 5pt))
 #set text(size: 16pt)
@@ -84,7 +75,7 @@ $${formula}$
 `
 }
 
-async function math_container(path, inline) {
+async function mathContainer(path, inline) {
 	const raw_html = inline
 		? `<img src="/${path}" class=math-inline>`
 		: `<p class=math-container><img src="/${path}" class=math-display></p>`
@@ -95,16 +86,16 @@ async function math_container(path, inline) {
 	}
 }
 
-const typst_filter = {
+const typstFilter = {
 	raw_block: async el => {
 		if (el.format === "typst") {
 			const path = await CACHE.insert(el.text)
-			return math_container(path, false)
+			return mathContainer(path, false)
 		}
 	},
 }
 
-async function classes_filter(element) {
+async function classesFilter(element) {
 	if (element.attributes?.class) {
 		await fs.appendFile(
 			path.join(config.target, "classes"),

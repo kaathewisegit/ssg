@@ -14,7 +14,7 @@ switch (command) {
 	case "build":
 		await vite.run()
 		await tailwind.run()
-		await render.update_all()
+		await render.updateAll()
 		break
 	case "watch": {
 		Proc.init()

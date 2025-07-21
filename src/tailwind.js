@@ -5,21 +5,21 @@ import chokidar from "chokidar"
 import postcss from "postcss"
 
 import config from "./config.js"
-import { is_proc } from "./util.js"
+import { isProc } from "./util.js"
 
 export async function run() {
 	const css = await fs.readFile("style.css", "utf8")
 	const result = postcss([tailwindcss]).process(css, {
 		from: "style.css",
-		to: path.join(config.gen_assets, "style.css"),
+		to: path.join(config.genAssets, "style.css"),
 	})
 	await result
 
-	fs.mkdir(config.gen_assets, { recursive: true })
-	fs.writeFile(path.join(config.gen_assets, "style.css"), result.css)
+	fs.mkdir(config.genAssets, { recursive: true })
+	fs.writeFile(path.join(config.genAssets, "style.css"), result.css)
 }
 
-if (is_proc()) {
+if (isProc()) {
 	await config.init()
 	await run()
 
@@ -31,7 +31,7 @@ if (is_proc()) {
 		},
 	)
 
-	watcher.on("all", async (_event, _file_path) => {
+	watcher.on("all", async (_event, _filePath) => {
 		await run()
 		console.log("TailwindCSS updated")
 	})

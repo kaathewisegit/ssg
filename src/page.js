@@ -4,7 +4,7 @@ import Handlebars from "handlebars"
 
 import config from "./config.js"
 import * as djot from "./djot.js"
-import { find_dir_with_file } from "./util.js"
+import { findDirWithFile } from "./util.js"
 
 export class Page {
 	constructor(src) {
@@ -37,12 +37,12 @@ export class Page {
 	}
 
 	async template() {
-		const [_, template_path] = await find_dir_with_file(
+		const [_, templatePath] = await findDirWithFile(
 			path.dirname(this.src),
 			"template.html.hbs",
 		)
-		const template_raw = await fs.readFile(template_path, "utf8")
-		const template = Handlebars.compile(template_raw)
+		const templateRaw = await fs.readFile(templatePath, "utf8")
+		const template = Handlebars.compile(templateRaw)
 		return template
 	}
 
@@ -51,14 +51,14 @@ export class Page {
 
 		switch (this.type) {
 			case "djot": {
-				return await this.#render_djot(raw)
+				return await this.#renderDjot(raw)
 			}
 			case "html":
 				return raw
 		}
 	}
 
-	async #render_djot(raw) {
+	async #renderDjot(raw) {
 		const template = await this.template()
 		const doc = djot.parse(raw)
 		const metadata = djot.metadata(doc)

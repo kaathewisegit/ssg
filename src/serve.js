@@ -3,7 +3,7 @@ import * as http from "node:http"
 import * as path from "node:path"
 
 import config from "./config.js"
-import { file_exists } from "./util.js"
+import { fileExists } from "./util.js"
 
 const MIME_TYPES = {
 	"": "text/html",
@@ -20,14 +20,14 @@ const MIME_TYPES = {
 	".wasm": "application/wasm",
 }
 
-function mimeType(file_path) {
-	return MIME_TYPES[path.extname(file_path)] || "application/octet-stream"
+function mimeType(filePath) {
+	return MIME_TYPES[path.extname(filePath)] || "application/octet-stream"
 }
 
 async function handle(request, result) {
 	let filePath = path.join(config.tree, request.url)
 
-	if (!(await file_exists(filePath))) {
+	if (!(await fileExists(filePath))) {
 		result.writeHead(404)
 		result.end("File not found")
 		return
@@ -38,7 +38,7 @@ async function handle(request, result) {
 		filePath = path.join(filePath, "index.html")
 	}
 
-	if (!(await file_exists(filePath))) {
+	if (!(await fileExists(filePath))) {
 		result.writeHead(404)
 		result.end(`index.html not found in directory ${request.url}`)
 		return

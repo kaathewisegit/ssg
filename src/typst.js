@@ -4,19 +4,19 @@ import { promises as fs } from "node:fs"
 import path from "node:path"
 
 import config from "./config.js"
-import { file_exists } from "./util.js"
+import { fileExists } from "./util.js"
 
 function dir() {
-	return path.join(config.gen_assets, "typst/")
+	return path.join(config.genAssets, "typst/")
 }
 
-function svg_file_path(formula) {
+function svgFilePath(formula) {
 	return path.format({ dir: dir(), name: hash(formula), ext: "svg" })
 }
 
 export const CACHE = {
 	async contains(formula) {
-		return file_exists(svg_file_path(formula))
+		return fileExists(svgFilePath(formula))
 	},
 
 	// Returns the relative path to the file
@@ -24,7 +24,7 @@ export const CACHE = {
 		if (!(await this.contains(formula))) {
 			render(formula)
 		}
-		return path.relative(config.tree, svg_file_path(formula))
+		return path.relative(config.tree, svgFilePath(formula))
 	},
 }
 
@@ -36,7 +36,7 @@ export async function render(typst) {
 	// TODO: this should probably go elsewhere
 	await fs.mkdir(dir(), { recursive: true })
 
-	const dst = svg_file_path(typst)
+	const dst = svgFilePath(typst)
 	const child = spawn("typst", ["compile", "--format", "svg", "-", dst], {
 		stdio: ["pipe", null, null],
 	})
