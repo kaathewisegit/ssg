@@ -18,6 +18,7 @@ const MIME_TYPES = {
 	".wav": "audio/wav",
 	".mp4": "video/mp4",
 	".wasm": "application/wasm",
+	".txt": "text/plain",
 }
 
 function mimeType(filePath) {
