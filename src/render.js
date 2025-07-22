@@ -30,10 +30,9 @@ silenceWarning("ExperimentalWarning")
 
 if (isProc()) {
 	await config.init()
-	await fs.rm(config.target, { recursive: true, force: true })
 	await updateAll()
 
-	const watcher = chokidar.watch("pages/", {
+	const watcher = chokidar.watch(config.pages, {
 		persistent: true,
 		ignoreInitial: true,
 	})

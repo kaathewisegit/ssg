@@ -40,6 +40,14 @@ export default {
 		return path.join(this.assets, "generated/")
 	},
 
+	get static() {
+		return path.join(this.root, "static/")
+	},
+
+	get assetsStatic() {
+		return path.join(this.assets, "static/")
+	},
+
 	get port() {
 		return this.options.port ?? 3000
 	},
