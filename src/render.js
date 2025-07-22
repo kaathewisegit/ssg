@@ -11,8 +11,8 @@ async function update(file) {
 	await page.write()
 }
 
-async function* pages() {
-	const pattern = path.join(config.pages, "**/*.dj")
+async function* pages(root = ".") {
+	const pattern = path.join(root, "**/*.dj")
 	const files = fs.glob(pattern)
 
 	for await (const djotPath of files) {
@@ -21,7 +21,7 @@ async function* pages() {
 }
 
 export async function updateAll() {
-	for await (const page of pages()) {
+	for await (const page of pages(config.pages)) {
 		await page.write()
 	}
 }
@@ -39,9 +39,19 @@ if (isProc()) {
 	})
 
 	watcher.on("all", async (_event, file) => {
-		if (path.extname(file) === ".dj") {
-			await update(file)
-			console.log(`${file} updated`)
+		switch (path.extname(file)) {
+			case ".dj": {
+				await update(file)
+				console.log(`${file} updated`)
+				break
+			}
+			case ".hbs": {
+				const dir = path.dirname(file)
+				for await (const page of pages(dir)) {
+					await page.write()
+				}
+				console.log(`All files in ${dir}/ updated`)
+			}
 		}
 	})
 }
