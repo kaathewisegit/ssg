@@ -59,6 +59,7 @@ const server = http.createServer(async (request, result) => {
 })
 
 await config.init()
+await fs.mkdir(config.tree, { recursive: true })
 process.chdir(config.tree)
 server.listen(config.port, () => {
 	console.log(`Server running at http://localhost:${config.port}/`)
