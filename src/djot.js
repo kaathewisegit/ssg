@@ -9,17 +9,34 @@ export function parse(src) {
 	return djot.parse(src)
 }
 
-export function metadata(doc) {
+export async function metadata(doc) {
+	const out = {}
+
 	const block = doc.children[0]
-	if (!block) {
-		return
+	if (block) {
+		try {
+			if (
+				block.tag === "raw_block" &&
+				block.format === "metadata"
+			) {
+				const json = JSON.parse(block.text)
+				Object.assign(out, json)
+			}
+		} catch (e) {
+			console.error(e)
+		}
 	}
 
-	if (block.tag === "raw_block" && block.format === "metadata") {
-		return JSON.parse(block.text)
+	const headingFilter = {
+		heading: async el => {
+			if (el.level === 1) {
+				out.title = el.children[0].text
+			}
+		},
 	}
+	await applyFilter(doc, headingFilter)
 
-	return null
+	return out
 }
 
 export async function render(doc) {

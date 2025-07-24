@@ -61,7 +61,7 @@ export class Page {
 	async #renderDjot(raw) {
 		const template = await this.template()
 		const doc = djot.parse(raw)
-		const metadata = djot.metadata(doc)
+		const metadata = await djot.metadata(doc)
 		const body = await djot.render(doc)
 		return template({ body, metadata })
 	}
