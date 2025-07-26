@@ -34,7 +34,9 @@ export async function metadata(doc) {
 			}
 		},
 	}
-	await applyFilter(doc, headingFilter)
+	if (!Object.hasOwn(out, "title")) {
+		await applyFilter(doc, headingFilter)
+	}
 
 	return out
 }
