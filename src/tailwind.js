@@ -9,14 +9,13 @@ import { isProc } from "./util.js"
 
 export async function run() {
 	const css = await fs.readFile("style.css", "utf8")
-	const result = postcss([tailwindcss]).process(css, {
+	const result = await postcss([tailwindcss]).process(css, {
 		from: "style.css",
 		to: path.join(config.genAssets, "style.css"),
 	})
-	await result
 
-	fs.mkdir(config.genAssets, { recursive: true })
-	fs.writeFile(path.join(config.genAssets, "style.css"), result.css)
+	await fs.mkdir(config.genAssets, { recursive: true })
+	await fs.writeFile(path.join(config.genAssets, "style.css"), result.css)
 }
 
 if (isProc()) {
