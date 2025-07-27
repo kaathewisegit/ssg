@@ -57,4 +57,10 @@ export default {
 
 		return names.map(file => path.join("js/", file))
 	},
+
+	ssgMetadata() {
+		return {
+			currentTime: Date.now(),
+		}
+	},
 }
