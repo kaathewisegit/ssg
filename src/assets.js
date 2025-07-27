@@ -11,8 +11,10 @@ export async function copyAll() {
 
 	try {
 		await fs.mkdir(config.assetsStatic, { recursive: true })
+		await fs.cp(config.static, config.assetsStatic, {
+			recursive: true,
+		})
 	} catch (_) {}
-	await fs.cp(config.static, config.assetsStatic, { recursive: true })
 }
 
 if (isProc()) {
