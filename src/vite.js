@@ -5,35 +5,30 @@ import config from "./config.js"
 import { isProc } from "./util.js"
 
 export async function run() {
-	if (config.viteEntrypoints.length > 0) {
-		await build(viteConfig(config.viteEntrypoints, false))
+	if (config.vite?.entrypoints) {
+		await build(viteConfig(config.vite?.entrypoints, false))
 	}
 }
 
 export async function watch() {
-	if (config.viteEntrypoints.length > 0) {
-		await build(viteConfig(config.viteEntrypoints, true))
+	if (config.vite?.entrypoints) {
+		await build(viteConfig(config.vite?.entrypoints, true))
 	}
 }
 
-function viteConfig(files, watch) {
-	const entries = files.reduce((acc, file) => {
-		const name = path.parse(file).name
-		acc[name] = file
-		return acc
-	}, {})
-
+function viteConfig(entrypoints, watch) {
 	return {
+		plugins: config.vite?.plugins,
 		build: {
 			minify: false,
+			outDir: path.join(config.genAssets, "vite/"),
 			lib: {
-				entry: entries,
-				// only build ES
+				entry: entrypoints,
 				fileName: (_format, entry) => `${entry}.js`,
+				// only build ES
 				formats: ["es"],
 			},
 			rollupOptions: {},
-			outDir: path.join(config.genAssets, "vite/"),
 			...(watch && { watch: "./js/" }),
 		},
 	}

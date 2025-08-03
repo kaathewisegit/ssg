@@ -58,6 +58,10 @@ export default {
 		return names.map(file => path.join("js/", file))
 	},
 
+	get vite() {
+		return this.options.vite ?? {}
+	},
+
 	ssgMetadata() {
 		return {
 			currentTime: Date.now(),
