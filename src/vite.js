@@ -37,5 +37,5 @@ function viteConfig(entrypoints, watch) {
 if (isProc()) {
 	await config.init()
 
-	await run()
+	await watch()
 }
