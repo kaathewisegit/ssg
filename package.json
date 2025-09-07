@@ -12,7 +12,7 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./jsx/jsx-dev-runtime": "./src/jsx/jsx-dev-runtime.ts",
-		"./jsx/jsx-runtime": "./src/jsx/*"
+		"./jsx/jsx-runtime": "./src/jsx/jsx-runtime.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.3",
