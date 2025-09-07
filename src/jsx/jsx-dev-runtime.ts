@@ -6,9 +6,9 @@ export async function jsxDEV(
 	element: Element,
 	props: Props,
 	_0: undefined,
-	severalChildren: boolean,
-	_1: undefined,
+	_1: boolean,
 	_2: undefined,
+	_3: undefined,
 ): Promise<string> {
-	return compile(element, props, severalChildren)
+	return compile(element, props)
 }

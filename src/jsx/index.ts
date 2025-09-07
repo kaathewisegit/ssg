@@ -1,7 +1,9 @@
 export const Fragment = Symbol("Fragment")
 
+type Children = Promise<string> | Promise<string>[]
+
 export interface Props {
-	children?: Promise<string> | Promise<string>[]
+	children?: Children
 }
 
 // biome-ignore lint/complexity/noBannedTypes: TODO type Function
@@ -18,9 +20,8 @@ function propsToAttrs(props: Props) {
 	return out
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: TODO
-async function fragmentToString(children: any, severalChildren: boolean) {
-	if (severalChildren) {
+async function fragmentToString(children: Children) {
+	if (Array.isArray(children)) {
 		let out = ""
 		for await (const element of children) {
 			out += element
@@ -31,15 +32,15 @@ async function fragmentToString(children: any, severalChildren: boolean) {
 	}
 }
 
-export async function compile(
-	element: Element,
-	props: Props,
-	severalChildren: boolean,
-): Promise<string> {
+export async function compile(element: Element, props: Props): Promise<string> {
 	if (typeof element === "function") {
 		return element(props)
 	} else if (typeof element === "symbol") {
-		return fragmentToString(props.children, severalChildren)
+		if (props.children) {
+			return fragmentToString(props.children)
+		} else {
+			return ""
+		}
 	}
 
 	if (props.children) {
