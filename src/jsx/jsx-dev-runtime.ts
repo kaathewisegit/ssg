@@ -1,7 +1,7 @@
 export const Fragment = Symbol("Fragment")
 
 interface Props {
-	children?: Promise<string>[]
+	children?: Promise<string> | Promise<string>[]
 }
 
 function propsToAttrs(props: Props) {
@@ -46,12 +46,12 @@ export async function jsxDEV(
 	if (props.children) {
 		let out = `<${element} ${propsToAttrs(props)}>`
 
-		if (severalChildren) {
+		if (props.children instanceof Array) {
 			for await (const element of props.children) {
 				out += element
 			}
 		} else {
-			out += element
+			out += await props.children
 		}
 
 		out += `</${element}>`
