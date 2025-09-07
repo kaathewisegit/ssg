@@ -1,12 +1,12 @@
 {
 	"name": "@kaathewise/ssg",
-	"description": "TODO",
+	"description": "Bun & JSX static site generator",
 	"version": "0.1.0-alpha.2",
 	"license": "MPL-2.0",
 	"author": "Andrej Kolčin",
 	"type": "module",
 	"scripts": {
-		"check": "biome check"
+		"check": "biome check && tsc --noEmit"
 	},
 	"bin": "src/run.ts",
 	"exports": {
