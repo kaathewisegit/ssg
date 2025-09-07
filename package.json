@@ -1,26 +1,29 @@
 {
 	"name": "@kaathewise/ssg",
-	"description": "Djot, Typst & Vite components static site generator",
+	"description": "TODO",
 	"version": "0.1.0-alpha.2",
 	"license": "MPL-2.0",
 	"author": "Andrej Kolčin",
 	"type": "module",
+
 	"scripts": {
-		"lint": "biome check --fix --unsafe",
-		"check": "biome check",
-		"smoke": "cd examples/basic/; node ../../src/index.js"
+		"check": "biome check"
 	},
-	"bin": "./src/index.js",
+
+	"bin": "src/run.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./jsx/jsx-dev-runtime": "./src/jsx/jsx-dev-runtime.ts",
+		"./jsx/jsx-runtime": "./src/jsx/*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.2.3",
+		"@types/bun": "^1.2.21",
+		"@types/node": "^24.3.1",
+		"typescript": "^5.9.2",
+		"typescript-language-server": "^4.4.0"
+	},
 	"dependencies": {
-		"@biomejs/biome": "^2.1.2",
-		"@djot/djot": "^0.3.2",
-		"@tailwindcss/postcss": "^4.1.11",
-		"chokidar": "^4.0.3",
-		"handlebars": "^4.7.8",
-		"postcss": "^8.5.6",
-		"vite": "^7.0.2"
-	},
-	"files": [
-		"src/"
-	]
+		"bun-html-live-reload": "github:aabccd021/bun-html-live-reload"
+	}
 }

@@ -1,11 +1,6 @@
 {
 	"files": {
-		"includes": [
-			"package.json",
-			"biome.json",
-			"src/**/*.js",
-			"examples/*/js/*.js"
-		]
+		"includes": ["*.json", "src/**/*.ts"]
 	},
 	"javascript": {
 		"formatter": {
