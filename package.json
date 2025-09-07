@@ -22,8 +22,5 @@
 		"@types/node": "^24.3.1",
 		"typescript": "^5.9.2",
 		"typescript-language-server": "^4.4.0"
-	},
-	"dependencies": {
-		"bun-html-live-reload": "github:aabccd021/bun-html-live-reload"
 	}
 }

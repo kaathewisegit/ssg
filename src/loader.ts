@@ -13,6 +13,6 @@ export async function renderAll(path: string) {
 	const module = await import(path)
 
 	if ("getStaticPaths" in module) {
-		const paths = await module.getStaticPaths()
+		const _paths = await module.getStaticPaths()
 	}
 }
