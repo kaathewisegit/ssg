@@ -27,6 +27,8 @@ export class Server {
 
 		Bun.serve({
 			port: this.port,
+			// for SSE
+			idleTimeout: 0,
 
 			fetch: async request => {
 				const url = new URL(request.url)
