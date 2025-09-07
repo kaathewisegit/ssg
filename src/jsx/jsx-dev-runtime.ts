@@ -46,7 +46,7 @@ export async function jsxDEV(
 	if (props.children) {
 		let out = `<${element} ${propsToAttrs(props)}>`
 
-		if (props.children instanceof Array) {
+		if (Array.isArray(props.children)) {
 			for await (const element of props.children) {
 				out += element
 			}
