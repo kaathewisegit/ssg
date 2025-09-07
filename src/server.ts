@@ -2,21 +2,27 @@ import { watch } from "node:fs/promises"
 import * as path from "node:path"
 import type { ReadableStreamDefaultController } from "node:stream/web"
 import type { MatchedRoute } from "bun"
-import { renderWith } from "./loader"
+import { clearCache, renderWith } from "./loader"
 
 const EVENT_PATH = "/__ssg_dev_sse"
 
 export class Server {
 	pagesPath: string
+	sourcePath: string
 	router: Bun.FileSystemRouter
 	port?: number = 3001
 
-	constructor(pagesPath: string, options?: { port?: number }) {
-		this.pagesPath = path.join(process.cwd(), pagesPath)
+	constructor(options: {
+		pagesPath: string
+		sourcePath: string
+		port?: number
+	}) {
+		this.pagesPath = path.join(process.cwd(), options.pagesPath)
+		this.sourcePath = path.join(process.cwd(), options.sourcePath)
 
 		this.router = new Bun.FileSystemRouter({
 			style: "nextjs",
-			dir: pagesPath,
+			dir: options.pagesPath,
 		})
 
 		this.port ??= options?.port
@@ -41,8 +47,9 @@ export class Server {
 			},
 		})
 
-		const watcher = watch(this.pagesPath, { recursive: true })
+		const watcher = watch(this.sourcePath, { recursive: true })
 		for await (const _ of watcher) {
+			clearCache(this.sourcePath)
 			for (const client of clients) {
 				client.enqueue("data: RELOAD\n\n")
 			}

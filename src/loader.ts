@@ -1,10 +1,13 @@
-function clearCache(path: string) {
-	delete import.meta.require.cache[path]
+export function clearCache(prefix: string) {
+	for (const path in import.meta.require.cache) {
+		if (path.startsWith(prefix)) {
+			delete import.meta.require.cache[path]
+		}
+	}
 }
 
 // biome-ignore lint: TODO
 export async function renderWith(path: string, props: any): Promise<string> {
-	clearCache(path)
 	const module = await import(path)
 	return module.default(props)
 }
