@@ -1,49 +1,48 @@
 import { watch } from "node:fs/promises"
 import * as path from "node:path"
 import { reload, withHtmlLiveReload } from "bun-html-live-reload"
-import configFactory from "./config"
+import { renderWith } from "./loader"
 
-const config = await configFactory()
-const pagesPath = path.join(process.cwd(), config.pages)
+export class Server {
+	pagesPath: string
+	router: Bun.FileSystemRouter
+	port?: number = 3001
 
-function clearCache(path: string) {
-	delete import.meta.require.cache[path]
-}
+	constructor(pagesPath: string, options: { port?: number }) {
+		this.pagesPath = path.join(process.cwd(), pagesPath)
 
-export async function serve() {
-	const router = new Bun.FileSystemRouter({
-		style: "nextjs",
-		dir: pagesPath,
-		origin: "https://kaathewise.net",
-	})
+		this.router = new Bun.FileSystemRouter({
+			style: "nextjs",
+			dir: pagesPath,
+		})
 
-	const server = Bun.serve({
-		port: 3001,
+		this.port = options.port
+	}
 
-		fetch: withHtmlLiveReload(async request => {
-			const m = router.match(request.url)
-			if (!m) {
-				return new Response("Not found", {
-					status: 404,
+	async listen() {
+		Bun.serve({
+			port: this.port,
+
+			fetch: withHtmlLiveReload(async request => {
+				const m = this.router.match(request.url)
+				if (!m) {
+					throw new Error("TODO not found")
+				}
+				const html = await renderWith(m.filePath, {
+					...m.params,
 				})
-			}
 
-			clearCache(m.filePath)
+				return new Response(html, {
+					headers: {
+						"Content-Type": "text/html",
+					},
+				})
+			}),
+		})
 
-			const mod = await import(m.filePath)
-			const content = await mod.default()
-			return new Response(content, {
-				headers: { "Content-Type": "text/html" },
-			})
-		}),
-	})
-
-	return server
-}
-
-serve()
-
-const watcher = watch(pagesPath)
-for await (const _ of watcher) {
-	reload()
+		const watcher = watch(this.pagesPath)
+		for await (const _ of watcher) {
+			reload()
+		}
+	}
 }
