@@ -2,27 +2,27 @@ import { watch } from "node:fs/promises"
 import * as path from "node:path"
 import type { ReadableStreamDefaultController } from "node:stream/web"
 import type { MatchedRoute } from "bun"
-import { clearCache, renderWith } from "./loader"
+import { render } from "./render"
 
 const EVENT_PATH = "/__ssg_dev_sse"
 
 export class Server {
-	pagesPath: string
+	pagesDir: string
 	sourcePath: string
 	router: Bun.FileSystemRouter
 	port?: number = 3001
 
 	constructor(options: {
-		pagesPath: string
+		pagesDir: string
 		sourcePath: string
 		port?: number
 	}) {
-		this.pagesPath = path.join(process.cwd(), options.pagesPath)
+		this.pagesDir = path.join(process.cwd(), options.pagesDir)
 		this.sourcePath = path.join(process.cwd(), options.sourcePath)
 
 		this.router = new Bun.FileSystemRouter({
 			style: "nextjs",
-			dir: options.pagesPath,
+			dir: options.pagesDir,
 		})
 
 		this.port ??= options?.port
@@ -43,12 +43,13 @@ export class Server {
 				}
 
 				const route = this.router.match(request.url)
-				return createHtml(route)
+				return createHtml(this.pagesDir, route)
 			},
 		})
 
 		const watcher = watch(this.sourcePath, { recursive: true })
 		for await (const _ of watcher) {
+			this.router.reload()
 			clearCache(this.sourcePath)
 			for (const client of clients) {
 				client.enqueue("data: RELOAD\n\n")
@@ -93,18 +94,16 @@ const RELOAD_SCRIPT = `
 </script>
 `
 
-async function createHtml(route: MatchedRoute | null) {
+async function createHtml(pagesDir: string, route: MatchedRoute | null) {
 	if (!route) {
 		throw new Error("TODO not found")
 	}
 
-	const html = await renderWith(route.filePath, {
-		...route.params,
-	})
+	const page = await render(route.filePath, pagesDir, route.params)
 
-	const response = new Response(html, {
+	const response = new Response(page.html, {
 		headers: {
-			"Content-Type": "text/html",
+			"Content-Type": page.contentType ?? "text/html",
 		},
 	})
 
@@ -115,4 +114,12 @@ async function createHtml(route: MatchedRoute | null) {
 			},
 		})
 		.transform(response)
+}
+
+export function clearCache(prefix: string) {
+	for (const path in import.meta.require.cache) {
+		if (path.startsWith(prefix)) {
+			delete import.meta.require.cache[path]
+		}
+	}
 }
