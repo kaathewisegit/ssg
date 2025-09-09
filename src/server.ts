@@ -89,8 +89,11 @@ function createStream(
 		start(controller): void {
 			clients.add(controller)
 
-			// @ts-expect-error
-			request.signal.addEventListener("abort", () => {
+			// workaround because @ts-expect-error doesn't fail for
+			// aspartik/website for some reason, breaking the check.
+			// biome-ignore lint/suspicious/noExplicitAny: above
+			const signal = request.signal as any
+			signal.addEventListener("abort", () => {
 				controller.close()
 				clients.delete(controller)
 			})
