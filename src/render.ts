@@ -1,7 +1,7 @@
 import * as path from "node:path"
 
 interface Params {
-	[name: string]: string | string[]
+	[name: string]: string
 }
 
 export type Page = {
@@ -58,11 +58,11 @@ export async function renderAll(
 function substituteParams(inputPath: string, params: Params): string {
 	let path = inputPath
 	for (const [key, value] of Object.entries(params)) {
-		if (typeof value === "string") {
-			path = path.replace(`[${key}]`, value)
-		} else if (Array.isArray(value)) {
-			path = path.replace(`[[...${key}]]`, value.join("/"))
-		}
+		const single = `[${key}]`
+		const multiple = `[[...${key}]]`
+
+		path = path.replace(single, value)
+		path = path.replace(multiple, value)
 	}
 
 	path = path.replace(/\.tsx?$/, "")
