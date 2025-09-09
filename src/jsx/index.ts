@@ -15,7 +15,7 @@ function propsToAttrs(props: Props) {
 		if (key === "children") {
 			continue
 		}
-		out += `${key}=${String(value)}`
+		out += `${key}=${String(value)} `
 	}
 	return out
 }
