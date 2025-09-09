@@ -17,12 +17,16 @@ export async function build(pagesDir: string, outDir: string = "dist/") {
 	}
 
 	await fs.rm(outDir, { recursive: true, force: true })
-	// recursive disables errors when the directory already exists
-	await fs.mkdir(outDir, { recursive: true })
+	await fs.mkdir(outDir)
 
 	for (const page of pages) {
 		const destPath = path.join(outDir, page.path)
-		await fs.mkdir(path.dirname(destPath), { recursive: true })
+		const dir = path.dirname(destPath)
+		if (!(await fs.exists(dir))) {
+			await fs.mkdir(path.dirname(destPath), {
+				recursive: true,
+			})
+		}
 		const file = Bun.file(destPath)
 		await write(file, page.html)
 	}
