@@ -8,22 +8,27 @@ const EVENT_PATH = "/__ssg_dev_sse"
 
 export class Server {
 	pagesDir: string
-	sourcePath: string
-	router: Bun.FileSystemRouter
+	sourceDir: string
+	assetDir?: string
 	port?: number = 3001
+
+	router: Bun.FileSystemRouter
 
 	constructor(options: {
 		pagesDir: string
-		sourcePath: string
+		sourceDir: string
+		assetDir?: string
 		port?: number
 	}) {
 		this.pagesDir = path.join(process.cwd(), options.pagesDir)
-		this.sourcePath = path.join(process.cwd(), options.sourcePath)
+		this.sourceDir = path.join(process.cwd(), options.sourceDir)
 
 		this.router = new Bun.FileSystemRouter({
 			style: "nextjs",
 			dir: options.pagesDir,
 		})
+
+		this.assetDir ??= options.assetDir
 
 		this.port ??= options?.port
 	}
@@ -43,14 +48,32 @@ export class Server {
 				}
 
 				const route = this.router.match(request.url)
-				return createHtml(this.pagesDir, route)
+				if (route) {
+					return createHtml(this.pagesDir, route)
+				}
+
+				if (this.assetDir) {
+					// TODO: .. escapes
+					const assetPath = path.join(
+						this.assetDir,
+						url.pathname.slice(1),
+					)
+
+					return new Response(Bun.file(assetPath))
+				}
+
+				return new Response("Not found", {
+					headers: {
+						"Content-Type": "text/html",
+					},
+				})
 			},
 		})
 
-		const watcher = watch(this.sourcePath, { recursive: true })
+		const watcher = watch(this.sourceDir, { recursive: true })
 		for await (const _ of watcher) {
 			this.router.reload()
-			clearCache(this.sourcePath)
+			clearCache(this.sourceDir)
 			for (const client of clients) {
 				client.enqueue("data: RELOAD\n\n")
 			}
@@ -94,11 +117,10 @@ const RELOAD_SCRIPT = `
 </script>
 `
 
-async function createHtml(pagesDir: string, route: MatchedRoute | null) {
-	if (!route) {
-		throw new Error("TODO not found")
-	}
-
+async function createHtml(
+	pagesDir: string,
+	route: MatchedRoute,
+): Promise<Response> {
 	const page = await render(route.filePath, pagesDir, route.params)
 
 	const response = new Response(page.html, {
