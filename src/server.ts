@@ -1,3 +1,4 @@
+import * as fs from "node:fs/promises"
 import { watch } from "node:fs/promises"
 import * as path from "node:path"
 import type { ReadableStreamDefaultController } from "node:stream/web"
@@ -20,15 +21,17 @@ export class Server {
 		assetDir?: string
 		port?: number
 	}) {
-		this.pagesDir = path.join(process.cwd(), options.pagesDir)
-		this.sourceDir = path.join(process.cwd(), options.sourceDir)
+		this.pagesDir = path.resolve(options.pagesDir)
+		this.sourceDir = path.resolve(options.sourceDir)
 
 		this.router = new Bun.FileSystemRouter({
 			style: "nextjs",
 			dir: options.pagesDir,
 		})
 
-		this.assetDir ??= options.assetDir
+		if (options.assetDir) {
+			this.assetDir = path.resolve(options.assetDir)
+		}
 
 		this.port ??= options?.port
 	}
@@ -47,28 +50,26 @@ export class Server {
 					return createStream(request, clients)
 				}
 
-				const route = this.router.match(request.url)
+				const route = this.router.match(url.href)
 				if (route) {
 					return createHtml(this.pagesDir, route)
 				}
 
-				if (this.assetDir) {
-					// TODO: .. escapes
-					const assetPath = path.join(
-						this.assetDir,
-						url.pathname.slice(1),
-					)
-
-					return new Response(Bun.file(assetPath))
+				const asset = await fetchStaticFile(
+					url,
+					this.assetDir,
+				)
+				if (asset) {
+					return asset
 				}
 
-				return new Response("Not found", {
-					headers: {
-						"Content-Type": "text/html",
-					},
+				console.warn(`Path '${url.pathname}' not found`)
+				return new Response("Page or file not found", {
+					status: 404,
 				})
 			},
 		})
+		console.log(`Listening on :${this.port}`)
 
 		const watcher = watch(this.sourceDir, { recursive: true })
 		for await (const _ of watcher) {
@@ -108,6 +109,31 @@ function createStream(
 	})
 }
 
+async function fetchStaticFile(
+	url: URL,
+	assetDir?: string,
+): Promise<Response | null> {
+	if (!assetDir) {
+		return null
+	}
+
+	let assetPath = path.join(assetDir, url.pathname.slice(1))
+	assetPath = path.resolve(assetPath)
+	if (!assetPath.startsWith(assetDir)) {
+		return new Response(
+			"Tried to get a file outside of the asset directory",
+			{ status: 403 },
+		)
+	}
+
+	const exists = await fs.exists(assetPath)
+	if (!exists) {
+		return null
+	}
+
+	return new Response(Bun.file(assetPath))
+}
+
 const RELOAD_SCRIPT = `
 <script type="module">
 	const sse = new EventSource("${EVENT_PATH}");
@@ -141,7 +167,7 @@ async function createHtml(
 		.transform(response)
 }
 
-export function clearCache(prefix: string) {
+function clearCache(prefix: string) {
 	for (const path in import.meta.require.cache) {
 		if (path.startsWith(prefix)) {
 			delete import.meta.require.cache[path]
