@@ -3,81 +3,56 @@ import { watch } from "node:fs/promises"
 import * as path from "node:path"
 import type { ReadableStreamDefaultController } from "node:stream/web"
 import type { MatchedRoute } from "bun"
+import type { Config } from "./config"
 import { render } from "./render"
 
 const EVENT_PATH = "/__ssg_dev_sse"
 
-export class Server {
-	pagesDir: string
-	sourceDir: string
-	assetDir?: string
-	port?: number = 3001
+export async function serve(config: Config): Promise<void> {
+	const clients = new Set<ReadableStreamDefaultController>()
+	const router = new Bun.FileSystemRouter({
+		style: "nextjs",
+		dir: config.pagesDir,
+	})
 
-	router: Bun.FileSystemRouter
+	Bun.serve({
+		port: config.port,
+		// for SSE
+		idleTimeout: 0,
 
-	constructor(options: {
-		pagesDir: string
-		sourceDir: string
-		assetDir?: string
-		port?: number
-	}) {
-		this.pagesDir = path.resolve(options.pagesDir)
-		this.sourceDir = path.resolve(options.sourceDir)
-
-		this.router = new Bun.FileSystemRouter({
-			style: "nextjs",
-			dir: options.pagesDir,
-		})
-
-		if (options.assetDir) {
-			this.assetDir = path.resolve(options.assetDir)
-		}
-
-		this.port ??= options?.port
-	}
-
-	async listen() {
-		const clients = new Set<ReadableStreamDefaultController>()
-
-		Bun.serve({
-			port: this.port,
-			// for SSE
-			idleTimeout: 0,
-
-			fetch: async request => {
-				const url = new URL(request.url)
-				if (url.pathname === EVENT_PATH) {
-					return createStream(request, clients)
-				}
-
-				const route = this.router.match(url.href)
-				if (route) {
-					return createHtml(this.pagesDir, route)
-				}
-
-				const asset = await fetchStaticFile(
-					url,
-					this.assetDir,
-				)
-				if (asset) {
-					return asset
-				}
-
-				console.warn(`Path '${url.pathname}' not found`)
-				return new Response("Page or file not found", {
-					status: 404,
-				})
-			},
-		})
-		console.log(`Listening on :${this.port}`)
-
-		const watcher = watch(this.sourceDir, { recursive: true })
-		for await (const _ of watcher) {
-			this.router.reload()
-			clearCache(this.sourceDir)
-			for (const client of clients) {
-				client.enqueue("data: RELOAD\n\n")
+		fetch: async request => {
+			const url = new URL(request.url)
+			if (url.pathname === EVENT_PATH) {
+				return createStream(request, clients)
 			}
+
+			const route = router.match(url.href)
+			if (route) {
+				return createHtml(config.pagesDir, route)
+			}
+
+			const asset = await fetchStaticFile(
+				url,
+				config.assetDir,
+			)
+			if (asset) {
+				return asset
+			}
+
+			console.warn(`Path '${url.pathname}' not found`)
+			return new Response("Page or file not found", {
+				status: 404,
+			})
+		},
+	})
+	console.log(`Listening on :${config.port}`)
+
+	const watcher = watch(config.sourceDir, { recursive: true })
+	for await (const _ of watcher) {
+		router.reload()
+		clearCache(config.sourceDir)
+		for (const client of clients) {
+			client.enqueue("data: RELOAD\n\n")
 		}
 	}
 }

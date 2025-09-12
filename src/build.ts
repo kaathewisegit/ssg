@@ -1,26 +1,24 @@
 import * as fs from "node:fs/promises"
 import * as path from "node:path"
 import { Glob, write } from "bun"
+import type { Config } from "./config"
 import { type Page, renderAll } from "./render"
 
 const glob = new Glob("**/*.{js,jsx,ts,tsx}")
 
-export async function build(pagesDir: string, outDir: string = "dist/") {
-	pagesDir = path.join(process.cwd(), pagesDir)
-	outDir = path.join(process.cwd(), outDir)
-
+export async function build(config: Config) {
 	const pages: Page[] = []
-	for await (const relPath of glob.scan(pagesDir)) {
-		const modulePath = path.join(pagesDir, relPath)
-		const p = await renderAll(modulePath, pagesDir)
+	for await (const relPath of glob.scan(config.pagesDir)) {
+		const modulePath = path.join(config.pagesDir, relPath)
+		const p = await renderAll(modulePath, config.pagesDir)
 		pages.push(...p)
 	}
 
-	await fs.rm(outDir, { recursive: true, force: true })
-	await fs.mkdir(outDir)
+	await fs.rm(config.outputDir, { recursive: true, force: true })
+	await fs.mkdir(config.outputDir)
 
 	for (const page of pages) {
-		const destPath = path.join(outDir, page.path)
+		const destPath = path.join(config.outputDir, page.path)
 		const dir = path.dirname(destPath)
 		if (!(await fs.exists(dir))) {
 			await fs.mkdir(path.dirname(destPath), {

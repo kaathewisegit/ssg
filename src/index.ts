@@ -1,3 +1,4 @@
 export { build } from "./build"
+export { type Config, defineConfig } from "./config"
 export { postcssPlugin } from "./css"
-export { Server } from "./server"
+export { serve } from "./server"
