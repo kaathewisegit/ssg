@@ -28,4 +28,10 @@ export async function build(config: Config) {
 		const file = Bun.file(destPath)
 		await write(file, page.html)
 	}
+
+	if (config.assetDir) {
+		await fs.cp(config.assetDir, config.outputDir, {
+			recursive: true,
+		})
+	}
 }
