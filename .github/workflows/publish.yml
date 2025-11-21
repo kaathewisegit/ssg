@@ -1,0 +1,28 @@
+name: Publish Package to npmjs
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: actions/setup-node@v6
+        with:
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: bun ci
+      # Additional check because I couldn't figure out how to set
+      # inter-workflow dependencies declaratively in `on` instead of resorting
+      # to `if` and templates
+      - run: bun check
+      - run: bun x npm publish
