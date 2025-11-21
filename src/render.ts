@@ -22,7 +22,7 @@ export async function render(
 		contentType = module.getContentType()
 	}
 
-	const def = module.default()
+	const def = module.default
 
 	let src: string
 	switch (typeof def) {
