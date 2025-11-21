@@ -15,15 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: oven-sh/setup-bun@v2
-
       - uses: actions/setup-node@v6
         with:
+          node-version: "latest"
           registry-url: "https://registry.npmjs.org"
 
-      - run: bun ci
-      # Additional check because I couldn't figure out how to set
-      # inter-workflow dependencies declaratively in `on` instead of resorting
-      # to `if` and templates
-      - run: bun check
-      - run: npm publish
+      - run: npm publish --verbose --access public

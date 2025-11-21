@@ -1,15 +1,21 @@
 {
 	"name": "@kaathewise/ssg",
 	"description": "Bun & JSX static site generator",
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"license": "MPL-2.0",
 	"author": "Andrej Kolčin",
 	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kaathewisegit/ssg.git"
+	},
 	"scripts": {
 		"check": "biome check && tsc --noEmit"
 	},
 	"main": "src/index.ts",
-	"bin": "./src/run.ts",
+	"bin": {
+		"ssg": "src/run.ts"
+	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.3",
 		"@types/bun": "^1.2.21",
