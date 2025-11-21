@@ -16,6 +16,9 @@
 	"bin": {
 		"ssg": "src/run.ts"
 	},
+	"files": [
+		"src"
+	],
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.3",
 		"@types/bun": "^1.2.21",
