@@ -127,7 +127,7 @@ async function createHtml(
 ): Promise<Response> {
 	const page = await render(route.filePath, pagesDir, route.params)
 
-	const response = new Response(page.html, {
+	const response = new Response(page.src, {
 		headers: {
 			"Content-Type": page.contentType ?? "text/html",
 		},

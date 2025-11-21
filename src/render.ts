@@ -6,7 +6,7 @@ interface Params {
 
 export type Page = {
 	path: string
-	html: string
+	src: string
 	contentType: string | null
 }
 
@@ -22,7 +22,22 @@ export async function render(
 		contentType = module.getContentType()
 	}
 
-	const html = await module.default(params)
+	const def = module.default()
+
+	let src: string
+	switch (typeof def) {
+		case "string": {
+			src = def
+			break
+		}
+		case "function": {
+			src = await def(params)
+			break
+		}
+		default: {
+			throw "Not implemented"
+		}
+	}
 
 	let pagePath = path.relative(pagesDir, modulePath)
 	pagePath = substituteParams(pagePath, params)
@@ -31,7 +46,7 @@ export async function render(
 		pagePath += ".html"
 	}
 
-	return { path: pagePath, html, contentType }
+	return { path: pagePath, src, contentType }
 }
 
 export async function renderAll(

@@ -26,7 +26,7 @@ export async function build(config: Config) {
 			})
 		}
 		const file = Bun.file(destPath)
-		await write(file, page.html)
+		await write(file, page.src)
 	}
 
 	if (config.assetDir) {
