@@ -20,4 +20,5 @@ jobs:
           node-version: "latest"
           registry-url: "https://registry.npmjs.org"
 
+      - run: npm run build
       - run: npm publish --verbose --access public

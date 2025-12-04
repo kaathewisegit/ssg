@@ -3,8 +3,8 @@ import { watch } from "node:fs/promises"
 import * as path from "node:path"
 import type { ReadableStreamDefaultController } from "node:stream/web"
 import type { MatchedRoute } from "bun"
-import type { Config } from "./config"
-import { render } from "./render"
+import type { Config } from "./config.ts"
+import { render } from "./render.ts"
 
 const EVENT_PATH = "/__ssg_dev_sse"
 

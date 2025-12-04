@@ -1,8 +1,8 @@
 import * as fs from "node:fs/promises"
 import * as path from "node:path"
 import { Glob, write } from "bun"
-import type { Config } from "./config"
-import { type Page, renderAll } from "./render"
+import type { Config } from "./config.ts"
+import { type Page, renderAll } from "./render.ts"
 
 const glob = new Glob("**/*.{js,jsx,ts,tsx}")
 

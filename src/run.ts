@@ -2,7 +2,7 @@
 
 import * as fs from "node:fs/promises"
 import * as path from "node:path"
-import { build, type Config, serve } from "./index"
+import { build, type Config, serve } from "./index.ts"
 
 const CONFIG_PATH = "ssg.config.ts"
 const HELP = `Usage: ssg <command>

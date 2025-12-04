@@ -1,3 +1,3 @@
-export { build } from "./build"
-export { type Config, defineConfig } from "./config"
-export { serve } from "./server"
+export { build } from "./build.ts"
+export { type Config, defineConfig } from "./config.ts"
+export { serve } from "./server.ts"
