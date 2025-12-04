@@ -1,6 +1,6 @@
 import * as fs from "node:fs/promises"
 import * as path from "node:path"
-import { Glob, write } from "bun"
+import { Glob } from "bun"
 import type { Config } from "./config.ts"
 import { type Page, renderAll } from "./render.ts"
 
@@ -25,8 +25,7 @@ export async function build(config: Config) {
 				recursive: true,
 			})
 		}
-		const file = Bun.file(destPath)
-		await write(file, page.src)
+		await fs.writeFile(destPath, page.src)
 	}
 
 	if (config.assetDir) {

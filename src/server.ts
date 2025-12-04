@@ -106,7 +106,8 @@ async function fetchStaticFile(
 		return null
 	}
 
-	return new Response(Bun.file(assetPath))
+	const contents = await fs.readFile(assetPath)
+	return new Response(contents)
 }
 
 const RELOAD_SCRIPT = `
