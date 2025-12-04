@@ -15,7 +15,7 @@
 	},
 	"main": "dist/index.ts",
 	"bin": {
-		"ssg": "src/run.ts"
+		"ssg": "dist/run.js"
 	},
 	"files": [
 		"dist"
