@@ -1,16 +1,13 @@
 import * as fs from "node:fs/promises"
 import * as path from "node:path"
-import { Glob } from "bun"
 import type { Config } from "./config.ts"
 import { type Page, renderAll } from "./render.ts"
-
-const glob = new Glob("**/*.{js,jsx,ts,tsx}")
+import { walk } from "./utils.ts"
 
 export async function build(config: Config) {
 	const pages: Page[] = []
-	for await (const relPath of glob.scan(config.pagesDir)) {
-		const modulePath = path.join(config.pagesDir, relPath)
-		const p = await renderAll(modulePath, config.pagesDir)
+	for await (const filePath of walk(config.pagesDir)) {
+		const p = await renderAll(filePath, config.pagesDir)
 		pages.push(...p)
 	}
 
