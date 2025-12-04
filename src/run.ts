@@ -1,7 +1,9 @@
 #!/usr/bin/env bun
 
+import console from "node:console"
 import * as fs from "node:fs/promises"
 import * as path from "node:path"
+import process from "node:process"
 import { build, type Config, serve } from "./index.ts"
 
 const CONFIG_PATH = "ssg.config.ts"

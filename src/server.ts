@@ -2,6 +2,7 @@ import * as fs from "node:fs/promises"
 import { watch } from "node:fs/promises"
 import * as path from "node:path"
 import type { ReadableStreamDefaultController } from "node:stream/web"
+import url from "node:url"
 import type { MatchedRoute } from "bun"
 import type { Config } from "./config.ts"
 import { render } from "./render.ts"
@@ -21,25 +22,25 @@ export async function serve(config: Config): Promise<void> {
 		idleTimeout: 0,
 
 		fetch: async request => {
-			const url = new URL(request.url)
-			if (url.pathname === EVENT_PATH) {
+			const rUrl = new url.URL(request.url)
+			if (rUrl.pathname === EVENT_PATH) {
 				return createStream(request, clients)
 			}
 
-			const route = router.match(url.href)
+			const route = router.match(rUrl.href)
 			if (route) {
 				return createHtml(config.pagesDir, route)
 			}
 
 			const asset = await fetchStaticFile(
-				url,
+				rUrl,
 				config.assetDir,
 			)
 			if (asset) {
 				return asset
 			}
 
-			console.warn(`Path '${url.pathname}' not found`)
+			console.warn(`Path '${rUrl.pathname}' not found`)
 			return new Response("Page or file not found", {
 				status: 404,
 			})
@@ -85,7 +86,7 @@ function createStream(
 }
 
 async function fetchStaticFile(
-	url: URL,
+	url: url.URL,
 	assetDir?: string,
 ): Promise<Response | null> {
 	if (!assetDir) {
