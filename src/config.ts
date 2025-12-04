@@ -17,7 +17,7 @@ export function defineConfig(options: {
 	assetDir?: string
 	outputDir?: string
 	port?: number
-}) {
+}): Config {
 	const config = {
 		pagesDir: path.resolve(options.pagesDir),
 		sourceDir: path.resolve(options.sourceDir),

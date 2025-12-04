@@ -4,16 +4,15 @@
 		"target": "esnext",
 		"module": "preserve",
 
-		// checks
-		"allowImportingTsExtensions": true,
-		"verbatimModuleSyntax": true,
-
 		// Checks
 		"strict": true,
 		"skipLibCheck": true,
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": true,
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
+		"isolatedDeclarations": true,
 
 		// building
 		"outDir": "./dist",

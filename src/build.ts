@@ -4,7 +4,7 @@ import type { Config } from "./config.ts"
 import { type Page, renderAll } from "./render.ts"
 import { walk } from "./utils.ts"
 
-export async function build(config: Config) {
+export async function build(config: Config): Promise<void> {
 	const pages: Page[] = []
 	for await (const filePath of walk(config.pagesDir)) {
 		const p = await renderAll(filePath, config.pagesDir)
