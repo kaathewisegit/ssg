@@ -1,7 +1,7 @@
 import * as fs from "node:fs/promises"
 import { watch } from "node:fs/promises"
+import http from "node:http"
 import * as path from "node:path"
-import type { ReadableStreamDefaultController } from "node:stream/web"
 import url from "node:url"
 import type { MatchedRoute } from "bun"
 import type { Config } from "./config.ts"
@@ -10,42 +10,35 @@ import { render } from "./render.ts"
 const EVENT_PATH = "/__ssg_dev_sse"
 
 export async function serve(config: Config): Promise<void> {
-	const clients = new Set<ReadableStreamDefaultController>()
+	const clients = new Set<http.ServerResponse>()
 	const router = new Bun.FileSystemRouter({
 		style: "nextjs",
 		dir: config.pagesDir,
 	})
 
-	Bun.serve({
-		port: config.port,
-		// for SSE
-		idleTimeout: 0,
+	const server = http.createServer(async (request, response) => {
+		const rUrl = new url.URL(request.url ?? "/", "http://localhost")
 
-		fetch: async request => {
-			const rUrl = new url.URL(request.url)
-			if (rUrl.pathname === EVENT_PATH) {
-				return createStream(request, clients)
-			}
+		if (rUrl.pathname === EVENT_PATH) {
+			createStream(response, clients)
+			return
+		}
 
-			const route = router.match(rUrl.href)
-			if (route) {
-				return createHtml(config.pagesDir, route)
-			}
+		const route = router.match(rUrl.href)
+		if (route) {
+			await serveHtml(response, route, config.pagesDir)
+			return
+		}
 
-			const asset = await fetchStaticFile(
-				rUrl,
-				config.assetDir,
-			)
-			if (asset) {
-				return asset
-			}
+		if (await fetchStaticFile(response, rUrl, config.assetDir)) {
+			return
+		}
 
-			console.warn(`Path '${rUrl.pathname}' not found`)
-			return new Response("Page or file not found", {
-				status: 404,
-			})
-		},
+		console.warn(`Path '${rUrl.pathname}' not found`)
+		response.writeHead(404)
+		response.end("Page or file not found")
 	})
+	server.listen(config.port)
 	console.log(`Listening on :${config.port}`)
 
 	const watcher = watch(config.sourceDir, { recursive: true })
@@ -53,62 +46,56 @@ export async function serve(config: Config): Promise<void> {
 		router.reload()
 		clearCache(config.sourceDir)
 		for (const client of clients) {
-			client.enqueue("data: RELOAD\n\n")
+			client.write("data: RELOAD\n\n")
 		}
 	}
 }
 
 function createStream(
-	request: Request,
-	clients: Set<ReadableStreamDefaultController>,
+	response: http.ServerResponse,
+	clients: Set<http.ServerResponse>,
 ) {
-	const stream = new ReadableStream({
-		start(controller): void {
-			clients.add(controller)
-
-			// workaround because @ts-expect-error doesn't fail for
-			// aspartik/website for some reason, breaking the check.
-			// biome-ignore lint/suspicious/noExplicitAny: above
-			const signal = request.signal as any
-			signal.addEventListener("abort", () => {
-				controller.close()
-				clients.delete(controller)
-			})
-		},
+	response.writeHead(200, {
+		"Content-Type": "text/event-stream",
+		"Cache-Control": "no-cache",
+		Connection: "keep-alive",
 	})
+	clients.add(response)
 
-	return new Response(stream, {
-		headers: {
-			"Content-Type": "text/event-stream",
-			"Cache-Control": "no-cache",
-		},
+	response.on("close", () => {
+		clients.delete(response)
+		response.end()
 	})
 }
 
 async function fetchStaticFile(
+	response: http.ServerResponse,
 	url: url.URL,
 	assetDir?: string,
-): Promise<Response | null> {
+): Promise<boolean> {
 	if (!assetDir) {
-		return null
+		return false
 	}
 
 	let assetPath = path.join(assetDir, url.pathname.slice(1))
 	assetPath = path.resolve(assetPath)
 	if (!assetPath.startsWith(assetDir)) {
-		return new Response(
+		response.writeHead(403)
+		response.end(
 			"Tried to get a file outside of the asset directory",
-			{ status: 403 },
 		)
+		return true
 	}
 
 	const exists = await fs.exists(assetPath)
 	if (!exists) {
-		return null
+		return false
 	}
 
 	const contents = await fs.readFile(assetPath)
-	return new Response(contents)
+	response.writeHead(200)
+	response.end(contents)
+	return true
 }
 
 const RELOAD_SCRIPT = `
@@ -123,25 +110,20 @@ const RELOAD_SCRIPT = `
 </script>
 `
 
-async function createHtml(
-	pagesDir: string,
+async function serveHtml(
+	response: http.ServerResponse,
 	route: MatchedRoute,
-): Promise<Response> {
+	pagesDir: string,
+): Promise<void> {
 	const page = await render(route.filePath, pagesDir, route.params)
-
-	const response = new Response(page.src, {
-		headers: {
-			"Content-Type": page.contentType ?? "text/html",
-		},
+	if (page.contentType === "text/html" || !page.contentType) {
+		page.src += RELOAD_SCRIPT
+	}
+	response.writeHead(200, {
+		"Content-Type": page.contentType ?? "text/html",
 	})
 
-	return new HTMLRewriter()
-		.onDocument({
-			end: (el): void => {
-				el.append(RELOAD_SCRIPT, { html: true })
-			},
-		})
-		.transform(response)
+	response.end(page.src)
 }
 
 function clearCache(prefix: string) {
