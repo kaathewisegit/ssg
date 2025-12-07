@@ -3,18 +3,16 @@ import { watch } from "node:fs/promises"
 import http from "node:http"
 import * as path from "node:path"
 import url from "node:url"
-import type { MatchedRoute } from "bun"
 import type { Config } from "./config.ts"
 import { render } from "./render.ts"
+import { type Match, Router } from "./router.ts"
 
 const EVENT_PATH = "/__ssg_dev_sse"
 
 export async function serve(config: Config): Promise<void> {
 	const clients = new Set<http.ServerResponse>()
-	const router = new Bun.FileSystemRouter({
-		style: "nextjs",
-		dir: config.pagesDir,
-	})
+
+	const router = await Router.new(config.pagesDir)
 
 	const server = http.createServer(async (request, response) => {
 		const rUrl = new url.URL(request.url ?? "/", "http://localhost")
@@ -24,7 +22,7 @@ export async function serve(config: Config): Promise<void> {
 			return
 		}
 
-		const route = router.match(rUrl.href)
+		const route = router.match(rUrl.pathname)
 		if (route) {
 			await serveHtml(response, route, config.pagesDir)
 			return
@@ -43,7 +41,6 @@ export async function serve(config: Config): Promise<void> {
 
 	const watcher = watch(config.sourceDir, { recursive: true })
 	for await (const _ of watcher) {
-		router.reload()
 		clearCache(config.sourceDir)
 		for (const client of clients) {
 			client.write("data: RELOAD\n\n")
@@ -112,7 +109,7 @@ const RELOAD_SCRIPT = `
 
 async function serveHtml(
 	response: http.ServerResponse,
-	route: MatchedRoute,
+	route: Match,
 	pagesDir: string,
 ): Promise<void> {
 	const page = await render(route.filePath, pagesDir, route.params)

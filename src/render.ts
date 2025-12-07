@@ -1,8 +1,5 @@
 import * as path from "node:path"
-
-interface Params {
-	[name: string]: string
-}
+import type { Params } from "./router.ts"
 
 export type Page = {
 	path: string
@@ -73,11 +70,14 @@ export async function renderAll(
 function substituteParams(inputPath: string, params: Params): string {
 	let path = inputPath
 	for (const [key, value] of Object.entries(params)) {
-		const single = `[${key}]`
-		const multiple = `[[...${key}]]`
+		const single = `:${key}`
+		const multiple = `*${key}`
 
-		path = path.replace(single, value)
-		path = path.replace(multiple, value)
+		if (typeof value === "string") {
+			path = path.replace(single, value)
+		} else {
+			path = path.replace(multiple, value.join("/"))
+		}
 	}
 
 	path = path.replace(/\.tsx?$/, "")
