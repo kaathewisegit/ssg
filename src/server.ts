@@ -42,7 +42,6 @@ export async function serve(config: Config): Promise<void> {
 	const watcher = watch(config.sourceDir, { recursive: true })
 	for await (const _ of watcher) {
 		await router.reload()
-		clearCache(config.sourceDir)
 		for (const client of clients) {
 			client.write("data: RELOAD\n\n")
 		}
@@ -85,15 +84,15 @@ async function fetchStaticFile(
 		return true
 	}
 
-	const exists = await fs.exists(assetPath)
-	if (!exists) {
+	try {
+		const contents = await fs.readFile(assetPath)
+		response.writeHead(200)
+		response.end(contents)
+		return true
+	} catch {
+		// the file doesn't exist
 		return false
 	}
-
-	const contents = await fs.readFile(assetPath)
-	response.writeHead(200)
-	response.end(contents)
-	return true
 }
 
 const RELOAD_SCRIPT = `
@@ -122,12 +121,4 @@ async function serveHtml(
 	})
 
 	response.end(page.src)
-}
-
-function clearCache(prefix: string) {
-	for (const path in import.meta.require.cache) {
-		if (path.startsWith(prefix)) {
-			delete import.meta.require.cache[path]
-		}
-	}
 }

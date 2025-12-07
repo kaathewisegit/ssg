@@ -17,11 +17,9 @@ export async function build(config: Config): Promise<void> {
 	for (const page of pages) {
 		const destPath = path.join(config.outputDir, page.path)
 		const dir = path.dirname(destPath)
-		if (!(await fs.exists(dir))) {
-			await fs.mkdir(path.dirname(destPath), {
-				recursive: true,
-			})
-		}
+		await fs.mkdir(path.dirname(destPath), {
+			recursive: true,
+		})
 		await fs.writeFile(destPath, page.src)
 	}
 
