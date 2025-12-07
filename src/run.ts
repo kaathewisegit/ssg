@@ -17,7 +17,9 @@ Commands:
 const args = process.argv.slice(2)
 
 const configPath = path.resolve(CONFIG_PATH)
-if (!(await fs.exists(configPath))) {
+try {
+	fs.access(configPath)
+} catch {
 	console.warn("Configuration file not found")
 	process.exit(10)
 }
