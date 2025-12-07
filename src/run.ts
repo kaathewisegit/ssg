@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import console from "node:console"
 import * as fs from "node:fs/promises"
