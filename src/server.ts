@@ -41,6 +41,7 @@ export async function serve(config: Config): Promise<void> {
 
 	const watcher = watch(config.sourceDir, { recursive: true })
 	for await (const _ of watcher) {
+		await router.reload()
 		clearCache(config.sourceDir)
 		for (const client of clients) {
 			client.write("data: RELOAD\n\n")

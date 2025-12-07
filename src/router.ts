@@ -42,6 +42,11 @@ export class Router {
 
 		return null
 	}
+
+	async reload(): Promise<void> {
+		const replacement = await Router.new(this.#root)
+		this.#paths = replacement.#paths
+	}
 }
 
 type Path = {
