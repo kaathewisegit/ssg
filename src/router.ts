@@ -110,10 +110,10 @@ function toFragments(pagePath: string): Fragment[] {
 	const out: Fragment[] = []
 
 	for (const piece of pieces) {
-		if (piece.startsWith(":")) {
-			out.push({ kind: "segment", value: piece.slice(1) })
-		} else if (piece.startsWith("*")) {
-			out.push({ kind: "repeat", value: piece.slice(1) })
+		if (piece.startsWith("[...") && piece.endsWith("]")) {
+			out.push({ kind: "repeat", value: piece.slice(4, -1) })
+		} else if (piece.startsWith("[") && piece.endsWith("]")) {
+			out.push({ kind: "segment", value: piece.slice(1, -1) })
 		} else {
 			out.push({ kind: "literal", value: piece })
 		}
