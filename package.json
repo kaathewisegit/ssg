@@ -11,7 +11,7 @@
 	},
 	"scripts": {
 		"check": "biome check && tsc --noEmit",
-		"build": "tsc --project tsconfig.build.json"
+		"build": "tsc"
 	},
 	"main": "dist/index.ts",
 	"bin": {
