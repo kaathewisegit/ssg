@@ -13,7 +13,8 @@
 		"check": "biome check && tsc --noEmit",
 		"build": "tsc"
 	},
-	"main": "dist/index.ts",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"bin": {
 		"ssg": "dist/run.js"
 	},
