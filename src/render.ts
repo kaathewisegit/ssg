@@ -70,8 +70,8 @@ export async function renderAll(
 function substituteParams(inputPath: string, params: Params): string {
 	let path = inputPath
 	for (const [key, value] of Object.entries(params)) {
-		const single = `:${key}`
-		const multiple = `*${key}`
+		const single = `[${key}]`
+		const multiple = `[...${key}]`
 
 		if (typeof value === "string") {
 			path = path.replace(single, value)
