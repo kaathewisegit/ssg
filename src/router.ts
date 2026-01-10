@@ -25,6 +25,11 @@ export class Router {
 			paths.push(toPath(rel))
 		}
 
+		paths.sort((a, b) => {
+			return pathToSpecificity(a) - pathToSpecificity(b)
+		})
+		console.log(paths)
+
 		return new Router(dir, paths)
 	}
 
@@ -59,6 +64,23 @@ function toPath(pagePath: string): Path {
 		filePath: pagePath,
 		fragments: toFragments(pagePath),
 	}
+}
+
+function pathToSpecificity(path: Path): number {
+	let out = 0
+	for (const fragment of path.fragments) {
+		switch (fragment.kind) {
+			case "literal":
+				out += 1
+				break
+			case "segment":
+				out += 10
+				break
+			case "repeat":
+				out += 100
+		}
+	}
+	return out
 }
 
 function matchPath(pagePath: Path, pathname: string): Match | null {
