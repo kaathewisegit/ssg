@@ -1,7 +1,7 @@
 {
 	"name": "@kaathewise/ssg",
 	"description": "JSX static site generator",
-	"version": "0.8.2",
+	"version": "0.8.3",
 	"license": "MPL-2.0",
 	"author": "Andrej Kolčin",
 	"type": "module",
