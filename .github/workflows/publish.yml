@@ -20,8 +20,9 @@ jobs:
           node-version: "latest"
           registry-url: "https://registry.npmjs.org"
 
-      - uses: oven-sh/setup-bun@v2
-      - run: bun ci
-      - run: bun run build
+      - uses: denoland/setup-deno@v2
+
+      - run: deno install --lock
+      - run: deno task build
 
       - run: npm publish --verbose --access public
