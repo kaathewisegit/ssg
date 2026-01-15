@@ -12,7 +12,7 @@ export async function render(
 	pagesDir: string,
 	params: Params = {},
 ): Promise<Page> {
-	const module = await import(modulePath)
+	const module = await import(`${modulePath}?update=${Date.now()}`)
 
 	let contentType = null
 	if ("getContentType" in module) {
