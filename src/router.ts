@@ -28,7 +28,6 @@ export class Router {
 		paths.sort((a, b) => {
 			return pathToSpecificity(a) - pathToSpecificity(b)
 		})
-		console.log(paths)
 
 		return new Router(dir, paths)
 	}
