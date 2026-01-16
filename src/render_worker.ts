@@ -1,5 +1,5 @@
 import * as path from "node:path"
-import { type Page, substituteParams } from "./render"
+import { type Page, substituteParams } from "./render.js"
 import type { Params } from "./router.ts"
 
 export async function render(
@@ -8,7 +8,6 @@ export async function render(
 	params: Params = {},
 ): Promise<Page> {
 	const module = await import(modulePath)
-	console.log(module)
 
 	let contentType = null
 	if ("getContentType" in module) {

@@ -12,7 +12,7 @@ export async function render(
 	params: Params = {},
 ): Promise<Page> {
 	const worker = new Worker(
-		new URL("./render_worker.ts", import.meta.url),
+		new URL("./render_worker.js", import.meta.url),
 		{
 			type: "module",
 		},
@@ -20,7 +20,6 @@ export async function render(
 
 	return new Promise((resolve, reject) => {
 		worker.onmessage = (e: MessageEvent) => {
-			console.log("e:", e)
 			worker.terminate()
 			if (e.data.page) {
 				resolve(e.data.page)
