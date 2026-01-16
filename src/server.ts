@@ -112,13 +112,22 @@ async function serveHtml(
 	route: Match,
 	pagesDir: string,
 ): Promise<void> {
-	const page = await render(route.filePath, pagesDir, route.params)
-	if (page.contentType === "text/html" || !page.contentType) {
-		page.src += RELOAD_SCRIPT
-	}
-	response.writeHead(200, {
-		"Content-Type": page.contentType ?? "text/html",
-	})
+	try {
+		const page = await render(
+			route.filePath,
+			pagesDir,
+			route.params,
+		)
+		if (page.contentType === "text/html" || !page.contentType) {
+			page.src += RELOAD_SCRIPT
+		}
+		response.writeHead(200, {
+			"Content-Type": page.contentType ?? "text/html",
+		})
 
-	response.end(page.src)
+		response.end(page.src)
+	} catch (err) {
+		response.writeHead(500, { "Content-Type": "text/plain" })
+		response.end(`Error: ${err}`)
+	}
 }
