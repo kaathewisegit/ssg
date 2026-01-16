@@ -1,4 +1,3 @@
-import * as path from "node:path"
 import type { Params } from "./router.ts"
 
 export type Page = {
@@ -12,38 +11,25 @@ export async function render(
 	pagesDir: string,
 	params: Params = {},
 ): Promise<Page> {
-	const module = await import(`${modulePath}?update=${Date.now()}`)
+	const worker = new Worker(
+		new URL("./render_worker.ts", import.meta.url),
+		{
+			type: "module",
+		},
+	)
 
-	let contentType = null
-	if ("getContentType" in module) {
-		contentType = module.getContentType()
-	}
-
-	const def = module.default
-
-	let src: string
-	switch (typeof def) {
-		case "string": {
-			src = def
-			break
+	return new Promise((resolve, reject) => {
+		worker.onmessage = (e: MessageEvent) => {
+			console.log("e:", e)
+			worker.terminate()
+			if (e.data.page) {
+				resolve(e.data.page)
+			} else {
+				reject(e.data.error)
+			}
 		}
-		case "function": {
-			src = await def(params)
-			break
-		}
-		default: {
-			throw "Not implemented"
-		}
-	}
-
-	let pagePath = path.relative(pagesDir, modulePath)
-	pagePath = substituteParams(pagePath, params)
-	pagePath = pagePath.replace(/\.tsx?$/, "")
-	if (pagePath.endsWith("index")) {
-		pagePath += ".html"
-	}
-
-	return { path: pagePath, src, contentType }
+		worker.postMessage({ modulePath, pagesDir, params })
+	})
 }
 
 export async function renderAll(
@@ -67,7 +53,7 @@ export async function renderAll(
 	return out
 }
 
-function substituteParams(inputPath: string, params: Params): string {
+export function substituteParams(inputPath: string, params: Params): string {
 	let path = inputPath
 	for (const [key, value] of Object.entries(params)) {
 		const single = `[${key}]`
