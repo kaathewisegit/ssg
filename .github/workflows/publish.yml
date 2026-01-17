@@ -20,9 +20,8 @@ jobs:
           node-version: "latest"
           registry-url: "https://registry.npmjs.org"
 
-      - uses: denoland/setup-deno@v2
-
-      - run: deno install --lock
-      - run: deno task build
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
 
       - run: npm publish --verbose --access public
