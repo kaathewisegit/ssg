@@ -11,6 +11,7 @@
 	},
 	"scripts": {
 		"check": "biome check && tsc --noEmit",
+		"fix": "biome check --fix",
 		"build": "tsc"
 	},
 	"main": "./dist/index.js",
