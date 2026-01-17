@@ -39,8 +39,9 @@ export async function serve(config: Config): Promise<void> {
 	server.listen(config.port)
 	console.log(`Listening on :${config.port}`)
 
-	const watcher = watch(config.sourceDir, { recursive: true })
-	for await (const _ of watcher) {
+	const watcher = watch(process.cwd(), { recursive: true })
+	for await (const e of watcher) {
+		console.log(e)
 		await router.reload()
 		for (const client of clients) {
 			client.write("data: RELOAD\n\n")

@@ -4,7 +4,6 @@ const OUTPUT_DIR = "dist/"
 const DEFAULT_PORT = 3001
 
 export type ConfigOptions = {
-	sourceDir: string
 	routesDir?: string
 	assetDir?: string
 	outputDir?: string
@@ -14,7 +13,6 @@ export type ConfigOptions = {
 }
 
 export class Config {
-	sourceDir: string
 	routesDir: string
 	assetDir?: string
 	outputDir: string
@@ -23,10 +21,8 @@ export class Config {
 	loaders: Loader[]
 
 	constructor(options: ConfigOptions) {
-		this.sourceDir = path.resolve(options.sourceDir)
 		this.routesDir = path.resolve(
-			options.routesDir ??
-				path.join(options.sourceDir, "routes/"),
+			options.routesDir ?? "src/routes/",
 		)
 		this.outputDir = path.resolve(options.outputDir ?? OUTPUT_DIR)
 		this.port = options.port ?? DEFAULT_PORT
