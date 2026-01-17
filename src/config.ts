@@ -4,23 +4,26 @@ const OUTPUT_DIR = "dist/"
 const DEFAULT_PORT = 3001
 
 export type Config = {
-	pagesDir: string
 	sourceDir: string
+	routesDir: string
 	assetDir?: string
 	outputDir: string
 	port: number
 }
 
 export function defineConfig(options: {
-	pagesDir: string
 	sourceDir: string
+	routesDir?: string
 	assetDir?: string
 	outputDir?: string
 	port?: number
 }): Config {
 	const config = {
-		pagesDir: path.resolve(options.pagesDir),
 		sourceDir: path.resolve(options.sourceDir),
+		routesDir: path.resolve(
+			options.routesDir ??
+				path.join(options.sourceDir, "routes/"),
+		),
 		outputDir: path.resolve(options.outputDir ?? OUTPUT_DIR),
 		port: options.port ?? DEFAULT_PORT,
 	} as Config

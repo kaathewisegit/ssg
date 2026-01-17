@@ -12,7 +12,7 @@ const EVENT_PATH = "/__ssg_dev_sse"
 export async function serve(config: Config): Promise<void> {
 	const clients = new Set<http.ServerResponse>()
 
-	const router = await Router.new(config.pagesDir)
+	const router = await Router.new(config.routesDir)
 
 	const server = http.createServer(async (request, response) => {
 		const rUrl = new url.URL(request.url ?? "/", "http://localhost")
@@ -24,7 +24,7 @@ export async function serve(config: Config): Promise<void> {
 
 		const route = router.match(rUrl.pathname)
 		if (route) {
-			await serveHtml(response, route, config.pagesDir)
+			await serveHtml(response, route, config.routesDir)
 			return
 		}
 
@@ -110,12 +110,12 @@ const RELOAD_SCRIPT = `
 async function serveHtml(
 	response: http.ServerResponse,
 	route: Match,
-	pagesDir: string,
+	routesDir: string,
 ): Promise<void> {
 	try {
 		const page = await render(
 			route.filePath,
-			pagesDir,
+			routesDir,
 			route.params,
 		)
 		if (page.contentType === "text/html" || !page.contentType) {

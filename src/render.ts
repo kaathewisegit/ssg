@@ -11,7 +11,7 @@ export type Page = {
 
 export async function render(
 	modulePath: string,
-	pagesDir: string,
+	routesDir: string,
 	params: Params = {},
 ): Promise<Page> {
 	const module = await dynImportString(await load(modulePath))
@@ -39,7 +39,7 @@ export async function render(
 		}
 	}
 
-	let pagePath = path.relative(pagesDir, modulePath)
+	let pagePath = path.relative(routesDir, modulePath)
 	pagePath = substituteParams(pagePath, params)
 	pagePath = pagePath.replace(/\.tsx?$/, "")
 	if (pagePath.endsWith("index")) {
@@ -51,7 +51,7 @@ export async function render(
 
 export async function renderAll(
 	modulePath: string,
-	pagesDir: string,
+	routesDir: string,
 ): Promise<Page[]> {
 	const module = await import(modulePath)
 
@@ -61,10 +61,10 @@ export async function renderAll(
 		const paramsList: Params[] = await module.getStaticParams()
 
 		for (const params of paramsList) {
-			out.push(await render(modulePath, pagesDir, params))
+			out.push(await render(modulePath, routesDir, params))
 		}
 	} else {
-		out.push(await render(modulePath, pagesDir))
+		out.push(await render(modulePath, routesDir))
 	}
 
 	return out
