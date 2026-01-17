@@ -1,6 +1,6 @@
 import * as path from "node:path"
-
-import { dynImportString, load } from "./load.ts"
+import { tsImport } from "tsx/esm/api"
+import type { Config } from "./config.ts"
 import type { Params } from "./router.ts"
 
 export type Page = {
@@ -9,12 +9,27 @@ export type Page = {
 	contentType: string | null
 }
 
+export type Props = Record<string, string | string[]>
+
+export type ArbitraryModule = {
+	getStaticParams?(): Props[]
+	getContentType?(): string
+	default?:
+		| ((props: Props) => string)
+		| ((props: Props) => Promise<string>)
+}
+
+export async function load(modulePath: string): Promise<ArbitraryModule> {
+	const module = tsImport(modulePath, { parentURL: import.meta.url })
+	return module
+}
+
 export async function render(
 	modulePath: string,
-	routesDir: string,
-	params: Params = {},
+	params: Params,
+	config: Config,
 ): Promise<Page> {
-	const module = await dynImportString(await load(modulePath))
+	const module = await load(modulePath)
 
 	let contentType = null
 	if (module.getContentType) {
@@ -39,7 +54,7 @@ export async function render(
 		}
 	}
 
-	let pagePath = path.relative(routesDir, modulePath)
+	let pagePath = path.relative(config.routesDir, modulePath)
 	pagePath = substituteParams(pagePath, params)
 	pagePath = pagePath.replace(/\.tsx?$/, "")
 	if (pagePath.endsWith("index")) {
@@ -51,7 +66,7 @@ export async function render(
 
 export async function renderAll(
 	modulePath: string,
-	routesDir: string,
+	config: Config,
 ): Promise<Page[]> {
 	const module = await import(modulePath)
 
@@ -61,10 +76,10 @@ export async function renderAll(
 		const paramsList: Params[] = await module.getStaticParams()
 
 		for (const params of paramsList) {
-			out.push(await render(modulePath, routesDir, params))
+			out.push(await render(modulePath, params, config))
 		}
 	} else {
-		out.push(await render(modulePath, routesDir))
+		out.push(await render(modulePath, {}, config))
 	}
 
 	return out

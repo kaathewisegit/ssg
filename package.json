@@ -22,7 +22,7 @@
 		"dist"
 	],
 	"dependencies": {
-		"rolldown": "^1.0.0-beta.60"
+		"tsx": "^4.21.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.3",

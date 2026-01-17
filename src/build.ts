@@ -6,8 +6,8 @@ import { walk } from "./utils.ts"
 
 export async function build(config: Config): Promise<void> {
 	const pages: Page[] = []
-	for await (const filePath of walk(config.routesDir)) {
-		const p = await renderAll(filePath, config.routesDir)
+	for await (const modulePath of walk(config.routesDir)) {
+		const p = await renderAll(modulePath, config)
 		pages.push(...p)
 	}
 

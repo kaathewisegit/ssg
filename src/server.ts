@@ -24,7 +24,7 @@ export async function serve(config: Config): Promise<void> {
 
 		const route = router.match(rUrl.pathname)
 		if (route) {
-			await serveHtml(response, route, config.routesDir)
+			await serveHtml(response, route, config)
 			return
 		}
 
@@ -110,14 +110,10 @@ const RELOAD_SCRIPT = `
 async function serveHtml(
 	response: http.ServerResponse,
 	route: Match,
-	routesDir: string,
+	config: Config,
 ): Promise<void> {
 	try {
-		const page = await render(
-			route.filePath,
-			routesDir,
-			route.params,
-		)
+		const page = await render(route.filePath, route.params, config)
 		if (page.contentType === "text/html" || !page.contentType) {
 			page.src += RELOAD_SCRIPT
 		}
