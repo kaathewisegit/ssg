@@ -1,3 +1,6 @@
+import * as path from "node:path"
+
+import { dynImportString, load } from "./load.ts"
 import type { Params } from "./router.ts"
 
 export type Page = {
@@ -11,24 +14,39 @@ export async function render(
 	pagesDir: string,
 	params: Params = {},
 ): Promise<Page> {
-	const worker = new Worker(
-		new URL("./render_worker.js", import.meta.url),
-		{
-			type: "module",
-		},
-	)
+	const module = await dynImportString(await load(modulePath))
 
-	return new Promise((resolve, reject) => {
-		worker.onmessage = (e: MessageEvent) => {
-			worker.terminate()
-			if (e.data.page) {
-				resolve(e.data.page)
-			} else {
-				reject(e.data.error)
-			}
+	let contentType = null
+	if (module.getContentType) {
+		contentType = module.getContentType()
+	}
+
+	const def = module.default
+
+	let src: string
+	switch (typeof def) {
+		case "string": {
+			src = def
+			break
 		}
-		worker.postMessage({ modulePath, pagesDir, params })
-	})
+		case "function": {
+			src = await def(params)
+
+			break
+		}
+		default: {
+			throw "Not implemented"
+		}
+	}
+
+	let pagePath = path.relative(pagesDir, modulePath)
+	pagePath = substituteParams(pagePath, params)
+	pagePath = pagePath.replace(/\.tsx?$/, "")
+	if (pagePath.endsWith("index")) {
+		pagePath += ".html"
+	}
+
+	return { path: pagePath, src, contentType }
 }
 
 export async function renderAll(
