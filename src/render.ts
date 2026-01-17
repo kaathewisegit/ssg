@@ -50,7 +50,7 @@ export async function render(
 			break
 		}
 		default: {
-			throw "Not implemented"
+			throw "`default` must be a string or a function"
 		}
 	}
 
