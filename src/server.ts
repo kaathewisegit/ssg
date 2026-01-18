@@ -41,7 +41,6 @@ export async function serve(config: Config): Promise<void> {
 
 	const watcher = watch(process.cwd(), { recursive: true })
 	for await (const e of watcher) {
-		console.log(e)
 		await router.reload()
 		for (const client of clients) {
 			client.write("data: RELOAD\n\n")
