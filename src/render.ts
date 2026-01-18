@@ -9,14 +9,12 @@ export type Page = {
 	contentType: string | null
 }
 
-export type Props = Record<string, string | string[]>
-
 export type ArbitraryModule = {
-	getStaticParams?(): Props[]
-	getContentType?(): string
+	getStaticParams?(): Params[]
+	getContentType?(params: Params): string
 	default?:
-		| ((props: Props) => string)
-		| ((props: Props) => Promise<string>)
+		| ((params: Params) => string)
+		| ((params: Params) => Promise<string>)
 }
 
 export async function load(modulePath: string): Promise<ArbitraryModule> {
@@ -33,7 +31,7 @@ export async function render(
 
 	let contentType = null
 	if (module.getContentType) {
-		contentType = module.getContentType()
+		contentType = module.getContentType(params)
 	}
 
 	const def = module.default
