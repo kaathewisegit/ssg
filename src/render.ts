@@ -10,7 +10,7 @@ export type Page = {
 }
 
 export type ArbitraryModule = {
-	getStaticParams?(): Params[]
+	getStaticParams?: (() => Params[]) | (() => Promise<Params[]>)
 	getContentType?(params: Params): string
 	default?:
 		| ((params: Params) => string)
@@ -66,11 +66,11 @@ export async function renderAll(
 	modulePath: string,
 	config: Config,
 ): Promise<Page[]> {
-	const module = await import(modulePath)
+	const module = await load(modulePath)
 
 	const out: Page[] = []
 
-	if ("getStaticParams" in module) {
+	if (module.getStaticParams) {
 		const paramsList: Params[] = await module.getStaticParams()
 
 		for (const params of paramsList) {
