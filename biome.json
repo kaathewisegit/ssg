@@ -5,7 +5,7 @@
 	"javascript": {
 		"formatter": {
 			"enabled": true,
-			"indentWidth": 8,
+			"indentWidth": 4,
 			"lineWidth": 80,
 			"semicolons": "asNeeded",
 			"arrowParentheses": "asNeeded"

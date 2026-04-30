@@ -36,10 +36,7 @@ export class Router {
 		for (const pagePath of this.#paths) {
 			const match = matchPath(pagePath, pathname)
 			if (match) {
-				match.filePath = path.join(
-					this.#root,
-					match.filePath,
-				)
+				match.filePath = path.join(this.#root, match.filePath)
 				return match
 			}
 		}

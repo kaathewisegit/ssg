@@ -1,56 +1,53 @@
 import * as path from "node:path"
-import { tsImport } from "tsx/esm/api"
+import { rolldown } from "rolldown"
 import type { Config } from "./config.ts"
 import type { Params } from "./router.ts"
 
 export type Page = {
 	path: string
-	src: string
+	head: string
+	body: string
 	contentType: string | null
 }
 
 export type ArbitraryModule = {
 	getStaticParams?: (() => Params[]) | (() => Promise<Params[]>)
 	getContentType?(params: Params): string
-	default?:
-		| ((params: Params) => string)
-		| ((params: Params) => Promise<string>)
+	Body: (params: Params) => Promise<string>
+	Head: (params: Params, body: string) => Promise<string>
 }
 
-export async function load(modulePath: string): Promise<ArbitraryModule> {
-	const module = tsImport(modulePath, { parentURL: import.meta.url })
+export async function load(
+	modulePath: string,
+	config: Config,
+): Promise<ArbitraryModule> {
+	const bundle = await rolldown({ input: modulePath })
+	const chunks = await bundle.write({
+		format: "esm",
+		dir: config.scratchDir,
+	})
+	const output = chunks.output[0]
+	const outputPath = `${config.scratchDir}/${output.fileName}?t=${Date.now()}`
+	const module = await import(outputPath)
+	await bundle.close()
+
 	return module
 }
 
-export async function render(
+export async function makePage(
 	modulePath: string,
 	params: Params,
 	config: Config,
 ): Promise<Page> {
-	const module = await load(modulePath)
+	const module = await load(modulePath, config)
 
 	let contentType = null
 	if (module.getContentType) {
 		contentType = module.getContentType(params)
 	}
 
-	const def = module.default
-
-	let src: string
-	switch (typeof def) {
-		case "string": {
-			src = def
-			break
-		}
-		case "function": {
-			src = await def(params)
-
-			break
-		}
-		default: {
-			throw "`default` must be a string or a function"
-		}
-	}
+	const body = await module.Body(params)
+	const head = await module.Head(params, body)
 
 	let pagePath = path.relative(config.routesDir, modulePath)
 	pagePath = substituteParams(pagePath, params)
@@ -59,14 +56,14 @@ export async function render(
 		pagePath += ".html"
 	}
 
-	return { path: pagePath, src, contentType }
+	return { path: pagePath, head, body, contentType }
 }
 
-export async function renderAll(
+export async function makeAllPages(
 	modulePath: string,
 	config: Config,
 ): Promise<Page[]> {
-	const module = await load(modulePath)
+	const module = await load(modulePath, config)
 
 	const out: Page[] = []
 
@@ -74,10 +71,10 @@ export async function renderAll(
 		const paramsList: Params[] = await module.getStaticParams()
 
 		for (const params of paramsList) {
-			out.push(await render(modulePath, params, config))
+			out.push(await makePage(modulePath, params, config))
 		}
 	} else {
-		out.push(await render(modulePath, {}, config))
+		out.push(await makePage(modulePath, {}, config))
 	}
 
 	return out
@@ -99,4 +96,17 @@ export function substituteParams(inputPath: string, params: Params): string {
 	path = path.replace(/\.tsx?$/, "")
 
 	return path
+}
+
+export function render(page: Page): string {
+	return `<!doctype html>
+<html>
+  <head>
+${page.head}
+  </head>
+  <body>
+${page.body}
+  </body>
+</html>
+`
 }

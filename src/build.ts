@@ -1,13 +1,13 @@
 import * as fs from "node:fs/promises"
 import * as path from "node:path"
 import type { Config } from "./config.ts"
-import { type Page, renderAll } from "./render.ts"
+import { makeAllPages, type Page, render } from "./render.ts"
 import { walk } from "./utils.ts"
 
 export async function build(config: Config): Promise<void> {
 	const pages: Page[] = []
 	for await (const modulePath of walk(config.routesDir)) {
-		const p = await renderAll(modulePath, config)
+		const p = await makeAllPages(modulePath, config)
 		pages.push(...p)
 	}
 
@@ -19,7 +19,7 @@ export async function build(config: Config): Promise<void> {
 		await fs.mkdir(path.dirname(destPath), {
 			recursive: true,
 		})
-		await fs.writeFile(destPath, page.src)
+		await fs.writeFile(destPath, render(page))
 	}
 
 	if (config.assetDir) {

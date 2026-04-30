@@ -4,7 +4,7 @@ import http from "node:http"
 import * as path from "node:path"
 import url from "node:url"
 import type { Config } from "./config.ts"
-import { render } from "./render.ts"
+import { makePage, render } from "./render.ts"
 import { type Match, Router } from "./router.ts"
 
 const EVENT_PATH = "/__ssg_dev_sse"
@@ -40,7 +40,7 @@ export async function serve(config: Config): Promise<void> {
 	console.log(`Listening on :${config.port}`)
 
 	const watcher = watch(process.cwd(), { recursive: true })
-	for await (const e of watcher) {
+	for await (const _e of watcher) {
 		await router.reload()
 		for (const client of clients) {
 			client.write("data: RELOAD\n\n")
@@ -78,9 +78,7 @@ async function fetchStaticFile(
 	assetPath = path.resolve(assetPath)
 	if (!assetPath.startsWith(assetDir)) {
 		response.writeHead(403)
-		response.end(
-			"Tried to get a file outside of the asset directory",
-		)
+		response.end("Tried to get a file outside of the asset directory")
 		return true
 	}
 
@@ -113,15 +111,15 @@ async function serveHtml(
 	config: Config,
 ): Promise<void> {
 	try {
-		const page = await render(route.filePath, route.params, config)
+		const page = await makePage(route.filePath, route.params, config)
 		if (page.contentType === "text/html" || !page.contentType) {
-			page.src += RELOAD_SCRIPT
+			page.head += RELOAD_SCRIPT
 		}
 		response.writeHead(200, {
 			"Content-Type": page.contentType ?? "text/html",
 		})
 
-		response.end(page.src)
+		response.end(render(page))
 	} catch (err) {
 		response.writeHead(500, { "Content-Type": "text/plain" })
 		response.end(`Error: ${err}`)
