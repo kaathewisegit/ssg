@@ -21,7 +21,10 @@ export async function load(
 	modulePath: string,
 	config: Config,
 ): Promise<ArbitraryModule> {
-	const bundle = await rolldown({ input: modulePath })
+	const bundle = await rolldown({
+		input: modulePath,
+		external: [/^[./][a-z0-9-_]$/, /^@[a-z0-9-_]\/[a-z0-9-_]$/, /^node:/],
+	})
 	const chunks = await bundle.write({
 		format: "esm",
 		dir: config.scratchDir,
