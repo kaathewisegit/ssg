@@ -1,5 +1,5 @@
 import * as path from "node:path"
-import { rolldown } from "rolldown"
+import * as esbuild from "esbuild"
 import type { Config } from "./config.ts"
 import type { Params } from "./router.ts"
 
@@ -21,18 +21,23 @@ export async function load(
 	modulePath: string,
 	config: Config,
 ): Promise<ArbitraryModule> {
-	const bundle = await rolldown({
-		input: modulePath,
-		external: [/^[./][a-z0-9-_]$/, /^@[a-z0-9-_]\/[a-z0-9-_]$/, /^node:/],
-	})
-	const chunks = await bundle.write({
+	const result = await esbuild.build({
+		entryPoints: [modulePath],
+		bundle: true,
 		format: "esm",
-		dir: config.scratchDir,
+		outdir: config.scratchDir,
+		packages: "external",
+		platform: "node",
+		metafile: true,
 	})
-	const output = chunks.output[0]
-	const outputPath = `${config.scratchDir}/${output.fileName}?t=${Date.now()}`
+
+	if (!result.metafile) throw Error("unreachable")
+	const outputFiles = Object.keys(result.metafile.outputs)
+	if (!outputFiles[0]) throw Error("unreachable")
+	const fileName = outputFiles[0].split("/").pop()
+
+	const outputPath = `${config.scratchDir}/${fileName}?t=${Date.now()}`
 	const module = await import(outputPath)
-	await bundle.close()
 
 	return module
 }

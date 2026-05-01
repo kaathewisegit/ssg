@@ -29,6 +29,6 @@
 		"typescript-language-server": "^4.4.0"
 	},
 	"dependencies": {
-		"rolldown": "^1.0.0-rc.18"
+		"esbuild": "^0.28.0"
 	}
 }
