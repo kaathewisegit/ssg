@@ -1,6 +1,6 @@
 {
 	"files": {
-		"includes": ["*.json", "src/**/*.ts"]
+		"includes": ["*.json", "src/**/*.ts", "scripts/*.js"]
 	},
 	"javascript": {
 		"formatter": {
