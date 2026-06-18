@@ -13,7 +13,6 @@ export async function makeIsland(code: string, id: string): Promise<string> {
 	})
 
 	const script = result.outputFiles[0]?.text
-	console.log(script)
 
 	return `<div id="${id}"><srcipt type="module">${script}</script><div id="${id}-mount"></div></div>`
 }
