@@ -14,7 +14,7 @@ export type ArbitraryModule = {
 	getStaticParams?: (() => Params[]) | (() => Promise<Params[]>)
 	getContentType?(params: Params): string
 	Body: (params: Params) => Promise<string>
-	Head: (params: Params, body: string) => Promise<string>
+	Head: (body: string, params: Params) => Promise<string>
 }
 
 export async function load(
@@ -55,7 +55,7 @@ export async function makePage(
 	}
 
 	const body = await module.Body(params)
-	const head = await module.Head(params, body)
+	const head = await module.Head(body, params)
 
 	let pagePath = path.relative(config.routesDir, modulePath)
 	pagePath = substituteParams(pagePath, params)
