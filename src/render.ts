@@ -47,24 +47,29 @@ export async function makePage(
 	params: Params,
 	config: Config,
 ): Promise<Page> {
-	const module = await load(modulePath, config)
+	try {
+		const module = await load(modulePath, config)
 
-	let contentType = null
-	if (module.getContentType) {
-		contentType = module.getContentType(params)
+		let contentType = null
+		if (module.getContentType) {
+			contentType = module.getContentType(params)
+		}
+
+		const body = await module.Body(params)
+		const head = await module.Head(body, params)
+
+		let pagePath = path.relative(config.routesDir, modulePath)
+		pagePath = substituteParams(pagePath, params)
+		pagePath = pagePath.replace(/\.tsx?$/, "")
+		if (pagePath.endsWith("index")) {
+			pagePath += ".html"
+		}
+
+		return { path: pagePath, head, body, contentType }
+	} catch (error) {
+		const route = path.relative(config.routesDir, modulePath)
+		throw new Error(`Failed to render ${route}`, { cause: error })
 	}
-
-	const body = await module.Body(params)
-	const head = await module.Head(body, params)
-
-	let pagePath = path.relative(config.routesDir, modulePath)
-	pagePath = substituteParams(pagePath, params)
-	pagePath = pagePath.replace(/\.tsx?$/, "")
-	if (pagePath.endsWith("index")) {
-		pagePath += ".html"
-	}
-
-	return { path: pagePath, head, body, contentType }
 }
 
 export async function makeAllPages(
