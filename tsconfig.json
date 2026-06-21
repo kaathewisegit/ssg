@@ -15,6 +15,7 @@
 		"isolatedDeclarations": true,
 
 		// building
+		"rootDir": "./src",
 		"outDir": "./dist",
 		"declaration": true,
 		"declarationMap": true,
