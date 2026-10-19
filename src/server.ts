@@ -129,6 +129,21 @@ async function serveHtml(
 		response.end(render(page))
 	} catch (err) {
 		response.writeHead(500, { "Content-Type": "text/plain" })
-		response.end(`Error: ${err}`)
+		response.end(formatError(err))
 	}
+}
+
+function formatError(err: unknown): string {
+	const messages: string[] = []
+
+	let cause: unknown = err
+	while (cause instanceof Error) {
+		messages.push(cause.stack ?? `${cause.name}: ${cause.message}`)
+		cause = cause.cause
+	}
+	if (messages.length === 0) {
+		messages.push(`Error: ${cause}`)
+	}
+
+	return messages.join("\nCaused by: ")
 }
