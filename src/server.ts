@@ -128,9 +128,18 @@ async function serveHtml(
 
 		response.end(render(page))
 	} catch (err) {
-		response.writeHead(500, { "Content-Type": "text/plain" })
-		response.end(formatError(err))
+		response.writeHead(500, { "Content-Type": "text/html" })
+		response.end(
+			`<!doctype html><html><head>${RELOAD_SCRIPT}</head><body><pre id="error"></pre>${errorScript(
+				formatError(err),
+			)}</body></html>`,
+		)
 	}
+}
+
+function errorScript(text: string): string {
+	const literal = JSON.stringify(text).replaceAll("<", "\\u003c")
+	return `<script>document.getElementById("error").textContent = ${literal}</script>`
 }
 
 function formatError(err: unknown): string {
