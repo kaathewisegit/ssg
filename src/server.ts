@@ -6,6 +6,7 @@ import url from "node:url"
 import type { Config } from "./config.ts"
 import { makePage, render } from "./render.ts"
 import { type Match, Router } from "./router.ts"
+import { escapeHtml, stripAnsi } from "./utils.ts"
 
 const EVENT_PATH = "/__ssg_dev_sse"
 
@@ -129,17 +130,11 @@ async function serveHtml(
 		response.end(render(page))
 	} catch (err) {
 		response.writeHead(500, { "Content-Type": "text/html" })
+		const sanitized = escapeHtml(stripAnsi(formatError(err)))
 		response.end(
-			`<!doctype html><html><head>${RELOAD_SCRIPT}</head><body><pre id="error"></pre>${errorScript(
-				formatError(err),
-			)}</body></html>`,
+			`<!doctype html><html><head>${RELOAD_SCRIPT}</head><body><pre>${sanitized}</pre></body></html>`,
 		)
 	}
-}
-
-function errorScript(text: string): string {
-	const literal = JSON.stringify(text).replaceAll("<", "\\u003c")
-	return `<script>document.getElementById("error").textContent = ${literal}</script>`
 }
 
 function formatError(err: unknown): string {
